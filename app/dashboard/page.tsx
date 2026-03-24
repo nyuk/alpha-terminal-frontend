@@ -1,7 +1,8 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useDashboard } from "@/features/dashboard/application/hooks/useDashboard"
+import { excludeCurrentSummaryFromLogs } from "@/features/dashboard/domain/excludeCurrentSummaryFromLogs"
 import { useWatchlist } from "@/features/watchlist/application/hooks/useWatchlist"
 import { DashboardAnalysisLogsSection } from "./components/DashboardAnalysisLogsSection"
 import { DashboardPipelineResult } from "./components/DashboardPipelineResult"
@@ -15,6 +16,7 @@ export default function DashboardPage() {
         isLoading: isSummaryLoading,
         error: summaryError,
         pipelineResult,
+        progressEvents,
         executePipeline,
         reload,
     } = useDashboard()
@@ -68,6 +70,11 @@ export default function DashboardPage() {
     const allSkipped = pipelineResult ? pipelineResult.processed.every((p) => p.skipped) : false
     const canRun = selectedSymbols.length > 0
 
+    const analysisLogsForDisplay = useMemo(
+        () => excludeCurrentSummaryFromLogs(analysisLogs, summaries),
+        [analysisLogs, summaries],
+    )
+
     return (
         <main
             className="min-h-screen bg-background text-foreground p-6 md:p-10"
@@ -92,17 +99,6 @@ export default function DashboardPage() {
                         : `선택 종목 분석 (${selectedSymbols.length}개)`}
                 </button>
             </header>
-
-            {running && (
-                <div
-                    className="mb-6 px-4 py-3 bg-blue-50 border border-blue-300 text-blue-700 rounded-lg dark:bg-blue-950 dark:border-blue-700 dark:text-blue-300"
-                    role="status"
-                    aria-live="polite"
-                >
-                    선택한 {selectedSymbols.length}개 종목에 대해 뉴스 수집 및 AI 분석을 진행 중입니다. 보통 30초~1분
-                    정도 걸릴 수 있습니다.
-                </div>
-            )}
 
             <DashboardPipelineResult
                 running={running}
@@ -140,16 +136,13 @@ export default function DashboardPage() {
                 isSummaryLoading={isSummaryLoading}
                 running={running}
                 watchlistCount={items.length}
-                canRunPipeline={canRun}
-                onRunPipeline={handleRunPipeline}
+                progressEvents={progressEvents}
             />
 
             <DashboardAnalysisLogsSection
-                analysisLogs={analysisLogs}
+                analysisLogs={analysisLogsForDisplay}
+                totalLogsFromApi={analysisLogs.length}
                 isSummaryLoading={isSummaryLoading}
-                running={running}
-                canRunPipeline={canRun}
-                onRunPipeline={handleRunPipeline}
             />
         </main>
     )

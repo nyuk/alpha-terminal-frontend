@@ -2,7 +2,16 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { ApiError } from "@/infrastructure/http/apiError"
-import { fetchAnalysisLogs, fetchDashboardSummaries, runPipeline } from "../../infrastructure/api/dashboardApi"
+import {
+    createFallbackPipelineProgressEvent,
+    type PipelineProgressEvent,
+} from "../../domain/model/pipelineProgressEvent"
+import {
+    fetchAnalysisLogs,
+    fetchDashboardSummaries,
+    runPipeline,
+    runPipelineStream,
+} from "../../infrastructure/api/dashboardApi"
 import type { AnalysisLog, StockSummary, PipelineResult } from "../../domain/model/stockSummary"
 
 function formatLoadError(err: unknown): string {
@@ -27,6 +36,7 @@ export const useDashboard = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const [pipelineResult, setPipelineResult] = useState<PipelineResult | null>(null)
+    const [progressEvents, setProgressEvents] = useState<PipelineProgressEvent[]>([])
 
     const load = useCallback(async () => {
         setIsLoading(true)
@@ -52,15 +62,42 @@ export const useDashboard = () => {
     const executePipeline = useCallback(async (symbols?: string[]) => {
         setError(null)
         setPipelineResult(null)
+        setProgressEvents([])
+
         try {
-            const result = await runPipeline(symbols)
-            setPipelineResult(result)
-            await new Promise((resolve) => setTimeout(resolve, 500))
+            const streamResult = await runPipelineStream(symbols, (e) => {
+                setProgressEvents((prev) => [...prev, e])
+            })
+
+            if (!streamResult.used) {
+                setProgressEvents([createFallbackPipelineProgressEvent()])
+                const result = await runPipeline(symbols)
+                setPipelineResult(result)
+                await new Promise((resolve) => setTimeout(resolve, 500))
+                await load()
+                setProgressEvents([])
+                return
+            }
+
+            if (streamResult.streamError) {
+                setError(streamResult.streamError)
+            }
             await load()
+            setProgressEvents([])
         } catch (err) {
             setError(formatPipelineError(err))
+            setProgressEvents([])
         }
     }, [load])
 
-    return { summaries, analysisLogs, isLoading, error, pipelineResult, executePipeline, reload: load }
+    return {
+        summaries,
+        analysisLogs,
+        isLoading,
+        error,
+        pipelineResult,
+        progressEvents,
+        executePipeline,
+        reload: load,
+    }
 }

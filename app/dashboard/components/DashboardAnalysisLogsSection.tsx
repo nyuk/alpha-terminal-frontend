@@ -6,19 +6,18 @@ import { SENTIMENT_BADGE, formatAnalyzedAt } from "./dashboardBadges"
 
 type Props = {
     analysisLogs: AnalysisLog[]
+    /** API에서 받은 원본 로그 개수(요약과 중복 숨김으로 목록이 비었을 때 안내) */
+    totalLogsFromApi?: number
     isSummaryLoading: boolean
-    running: boolean
-    canRunPipeline: boolean
-    onRunPipeline: () => void
 }
 
 export function DashboardAnalysisLogsSection({
     analysisLogs,
+    totalLogsFromApi,
     isSummaryLoading,
-    running,
-    canRunPipeline,
-    onRunPipeline,
 }: Props) {
+    const rawCount = totalLogsFromApi ?? analysisLogs.length
+    const deferredAllAsCurrent = !isSummaryLoading && analysisLogs.length === 0 && rawCount > 0
     const [logsExpanded, setLogsExpanded] = useState(true)
 
     return (
@@ -54,17 +53,22 @@ export function DashboardAnalysisLogsSection({
                         <div key={i} className="h-28 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse" />
                     ))}
                 </div>
+            ) : deferredAllAsCurrent ? (
+                <div className="rounded-lg border border-dashed border-gray-300 px-6 py-10 text-center dark:border-gray-600">
+                    <p className="mb-2 text-gray-500">
+                        방금 분석한 내용은 위 <strong className="font-medium text-gray-600 dark:text-gray-400">AI 분석 요약</strong>
+                        에만 표시됩니다.
+                    </p>
+                    <p className="text-sm text-gray-500">
+                        같은 종목에 새 분석이 실행되면, 이전 결과가 여기 로그에 쌓입니다.
+                    </p>
+                </div>
             ) : analysisLogs.length === 0 ? (
                 <div className="rounded-lg border border-dashed border-gray-300 px-6 py-10 text-center dark:border-gray-600">
-                    <p className="mb-4 text-gray-500">아직 누적된 분석 로그가 없습니다.</p>
-                    <button
-                        type="button"
-                        onClick={onRunPipeline}
-                        disabled={running || !canRunPipeline}
-                        className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-blue-400 transition-colors"
-                    >
-                        선택 종목 분석
-                    </button>
+                    <p className="mb-2 text-gray-500">아직 누적된 분석 로그가 없습니다.</p>
+                    <p className="text-sm text-gray-500">
+                        분석을 실행하려면 화면 상단의 &quot;선택 종목 분석&quot; 버튼을 사용하세요.
+                    </p>
                 </div>
             ) : logsExpanded ? (
                 <div id="dashboard-analysis-log-list" className="space-y-3">
