@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { ApiError } from "@/infrastructure/http/apiError"
 import { searchStocks } from "../../infrastructure/api/stockApi"
 import type { StockItem } from "../../domain/model/stockItem"
 
@@ -22,8 +23,12 @@ export const useStockSearch = () => {
         try {
             const data = await searchStocks(q)
             setResults(data)
-        } catch {
-            setError("검색에 실패했습니다.")
+        } catch (err) {
+            if (err instanceof ApiError) {
+                setError(err.message || "검색에 실패했습니다.")
+            } else {
+                setError("검색에 실패했습니다.")
+            }
             setResults([])
         } finally {
             setIsLoading(false)

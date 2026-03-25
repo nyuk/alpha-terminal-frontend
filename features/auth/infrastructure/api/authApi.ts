@@ -1,4 +1,7 @@
 import { env } from "@/infrastructure/config/env"
+import { readApiError } from "@/infrastructure/http/apiError"
+
+export { ApiError } from "@/infrastructure/http/apiError"
 import { httpClient } from "@/infrastructure/http/httpClient"
 import { getCookie } from "@/infrastructure/utils/cookie"
 import type { AuthUser } from "../../domain/model/authUser"
@@ -36,11 +39,20 @@ function clearAuthCookies() {
     }
 }
 
-export class ApiError extends Error {
-    constructor(public status: number, message: string) {
-        super(message)
-        this.name = "ApiError"
-    }
+export interface AuthMeResponse {
+    is_registered: boolean
+    nickname: string
+    email: string
+    account_id?: string
+}
+
+export async function fetchAuthMe(): Promise<AuthMeResponse> {
+    const res = await fetch(`${env.apiBaseUrl}/authentication/me`, {
+        method: "GET",
+        credentials: "include",
+    })
+    if (!res.ok) throw await readApiError(res)
+    return res.json()
 }
 
 export interface AuthMeResponse {
@@ -66,9 +78,7 @@ export async function registerUser(params: { nickname: string; email: string }):
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(params),
     })
-    if (!res.ok) {
-        throw new ApiError(res.status, "Registration failed")
-    }
+    if (!res.ok) throw await readApiError(res)
     const body = await res.json()
     return body.redirect_url as string
 }
