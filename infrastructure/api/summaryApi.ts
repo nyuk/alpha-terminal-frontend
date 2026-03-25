@@ -10,6 +10,7 @@ export interface StockSummaryItem {
   sentiment_score: number;
   confidence: number;
   source_type: 'NEWS' | 'DISCLOSURE' | 'REPORT';
+  url?: string;
 }
 
 export const summaryApi = {
@@ -28,5 +29,11 @@ export const summaryApi = {
   runPipeline: async (): Promise<void> => {
     const res = await httpClient.post("/pipeline/run", undefined);
     if (!res.ok) throw new Error("파이프라인 실행에 실패했습니다.");
+  },
+
+  getProgress: async (): Promise<{ messages: string[]; done: boolean }> => {
+    const res = await httpClient.get("/pipeline/progress");
+    if (!res.ok) return { messages: [], done: false };
+    return res.json();
   },
 };

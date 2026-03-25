@@ -8,6 +8,7 @@ interface StockSummaryCardProps {
   sentiment: 'POSITIVE' | 'NEGATIVE' | 'NEUTRAL';
   sentiment_score: number;
   confidence: number;
+  url?: string;
 }
 
 const SENTIMENT_STYLE = {
@@ -30,10 +31,10 @@ export default function StockSummaryCard({
   sentiment,
   sentiment_score,
   confidence,
+  url,
 }: StockSummaryCardProps) {
-  return (
-    <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-5 flex flex-col gap-3 bg-background">
-
+  const inner = (
+    <>
       {/* 종목명 + 감성 */}
       <div className="flex items-center justify-between">
         <div className="flex items-baseline gap-2">
@@ -50,9 +51,9 @@ export default function StockSummaryCard({
 
       {/* 태그 */}
       <div className="flex flex-wrap gap-2">
-        {tags.map((tag) => (
+        {tags.map((tag, i) => (
           <span
-            key={tag.label}
+            key={`${tag.label}-${i}`}
             className="px-2 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full dark:bg-blue-950 dark:text-blue-300"
           >
             {tag.label}
@@ -71,6 +72,25 @@ export default function StockSummaryCard({
         </div>
         <span className="text-xs text-gray-400">{Math.round(confidence * 100)}%</span>
       </div>
-    </div>
+
+      {/* 원문 링크 힌트 */}
+      {url && (
+        <span className="text-xs text-blue-400 mt-1">원문 보기 →</span>
+      )}
+    </>
   );
+
+  const cardClass =
+    'border border-gray-200 dark:border-gray-700 rounded-xl p-5 flex flex-col gap-3 bg-background' +
+    (url ? ' cursor-pointer hover:border-blue-400 hover:shadow-md transition-all' : '');
+
+  if (url) {
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className={cardClass}>
+        {inner}
+      </a>
+    );
+  }
+
+  return <div className={cardClass}>{inner}</div>;
 }

@@ -14,6 +14,7 @@ export default function DashboardPage() {
   const [running, setRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [doneMessage, setDoneMessage] = useState<string | null>(null);
+  const [progressMessages, setProgressMessages] = useState<string[]>([]);
 
   const fetchSummaries = async () => {
     setLoading(true);
@@ -39,9 +40,26 @@ export default function DashboardPage() {
     setRunning(true);
     setError(null);
     setDoneMessage(null);
+    setProgressMessages([]);
+
+    // 진행 상황 폴링 시작
+    const pollInterval = setInterval(async () => {
+      try {
+        const progress = await summaryApi.getProgress();
+        setProgressMessages(progress.messages);
+      } catch {
+        // ignore polling errors
+      }
+    }, 1500);
+
     try {
       await summaryApi.runPipeline();
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      clearInterval(pollInterval);
+
+      // 완료 후 최종 progress 한 번 더 읽기
+      const finalProgress = await summaryApi.getProgress();
+      setProgressMessages(finalProgress.messages);
+
       const [news, reports] = await Promise.all([
         summaryApi.getSummaries(),
         summaryApi.getReportSummaries(),
@@ -55,6 +73,7 @@ export default function DashboardPage() {
         setDoneMessage('분석이 완료됐지만 결과가 없습니다. 관심종목을 먼저 추가해주세요.');
       }
     } catch (e) {
+      clearInterval(pollInterval);
       console.error('[pipeline] error:', e);
       setError((e as Error).message);
     } finally {
@@ -86,7 +105,16 @@ export default function DashboardPage() {
 
       {running && (
         <div className="mb-4 px-4 py-3 bg-blue-50 border border-blue-300 text-blue-700 rounded-lg dark:bg-blue-950 dark:border-blue-700 dark:text-blue-300">
-          뉴스·공시·재무리포트 수집 및 AI 분석 중입니다. 30초~2분 소요됩니다.
+          <p className="font-medium mb-2">뉴스·공시·재무리포트 수집 및 AI 분석 중...</p>
+          {progressMessages.length > 0 && (
+            <ul className="text-xs space-y-1 max-h-32 overflow-y-auto font-mono">
+              {progressMessages.map((msg, i) => (
+                <li key={i} className={msg.startsWith('✅') ? 'text-green-600 font-semibold' : ''}>
+                  {msg}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
@@ -155,18 +183,24 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {displayItems.map((stock) => (
-              <StockSummaryCard
-                key={`${stock.symbol}-${stock.source_type}`}
-                symbol={stock.symbol}
-                name={stock.name}
-                summary={stock.summary}
-                tags={stock.tags}
-                sentiment={stock.sentiment}
-                sentiment_score={stock.sentiment_score}
-                confidence={stock.confidence}
-              />
-            ))}
+            {displayItems.map((stock) => {
+              const fallbackUrl = stock.source_type === 'NEWS'
+                ? `https://finance.naver.com/item/news.nhn?code=${stock.symbol}`
+                : `https://dart.fss.or.kr/dsab001/main.do?textCrpNm=${encodeURIComponent(stock.name)}&currentPage=1&maxResults=15&sort=date&series=desc`;
+              return (
+                <StockSummaryCard
+                  key={`${stock.symbol}-${stock.source_type}`}
+                  symbol={stock.symbol}
+                  name={stock.name}
+                  summary={stock.summary}
+                  tags={stock.tags}
+                  sentiment={stock.sentiment}
+                  sentiment_score={stock.sentiment_score}
+                  confidence={stock.confidence}
+                  url={stock.url || fallbackUrl}
+                />
+              );
+            })}
           </div>
         )}
       </section>
