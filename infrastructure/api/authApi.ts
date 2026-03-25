@@ -1,10 +1,11 @@
 import { httpClient } from "@/infrastructure/http/httpClient";
 
 export interface MeResponse {
-  /** true면 임시 토큰 보유 → 약관 동의 필요 */
-  isTemporary: boolean;
+  /** true면 정식 세션 보유 (기존 회원), false면 temp_token (약관 동의 필요) */
+  is_registered: boolean;
   email: string;
-  nickname?: string;
+  nickname: string;
+  account_id?: string;
 }
 
 export async function fetchMe(): Promise<MeResponse> {
