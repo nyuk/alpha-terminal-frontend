@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useMemo, useState } from 'react'
 import { ClientPaginationBar } from '@/app/components/ClientPaginationBar'
 import { DailyReturnsHeatmapLegend } from '@/app/components/DailyReturnsHeatmapLegend'
@@ -161,8 +162,12 @@ export default function WatchlistPage() {
                                     >
                                         <div className="flex flex-col gap-2 min-w-0 flex-1">
                                             <div className="flex flex-wrap items-center gap-3">
-                                                <span className="font-mono text-sm font-semibold text-gray-400">{item.symbol}</span>
-                                                <span className="font-medium">{item.name}</span>
+                                                <Link href={`/stock/${item.symbol}`} className="font-mono text-sm font-semibold text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors">
+                                                    {item.symbol}
+                                                </Link>
+                                                <Link href={`/stock/${item.symbol}`} className="font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                                                    {item.name}
+                                                </Link>
                                                 <MarketBadge market={item.market} />
                                             </div>
                                             {hi ? (
