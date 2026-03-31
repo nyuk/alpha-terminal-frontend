@@ -12,6 +12,7 @@ export function calcHomeStats(logs: AnalysisLog[]): HomeStats {
         return {
             gauge: { score: 50, label: "중립" },
             distribution: { positive: 0, neutral: 0, negative: 0, total: 0 },
+            topPicks: [],
         }
     }
 
@@ -25,8 +26,20 @@ export function calcHomeStats(logs: AnalysisLog[]): HomeStats {
         total: logs.length,
     }
 
+    const topPicks = logs
+        .filter((l) => l.sentiment === "POSITIVE" && l.confidence != null)
+        .sort((a, b) => b.sentiment_score * (b.confidence ?? 0) - a.sentiment_score * (a.confidence ?? 0))
+        .slice(0, 3)
+        .map((l) => ({
+            symbol: l.symbol,
+            name: l.name ?? l.symbol,
+            sentiment_score: l.sentiment_score,
+            confidence: l.confidence ?? 0,
+        }))
+
     return {
         gauge: { score: gaugeScore, label: calcGaugeLabel(gaugeScore) },
         distribution,
+        topPicks,
     }
 }

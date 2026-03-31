@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/features/auth/application/hooks/useAuth"
 import { KakaoLoginButton } from "@/features/auth/ui/components/LoginButton"
@@ -11,6 +11,14 @@ const oauthButtons = [
 ]
 
 export default function LoginPage() {
+    return (
+        <Suspense>
+            <LoginContent />
+        </Suspense>
+    )
+}
+
+function LoginContent() {
     const { state, loadUser } = useAuth()
     const router = useRouter()
     const searchParams = useSearchParams()

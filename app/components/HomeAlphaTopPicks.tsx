@@ -19,9 +19,9 @@ export function HomeAlphaTopPicks({ topPicks }: Props) {
             </div>
 
             <div className="flex flex-col gap-1">
-                {topPicks.map((pick) => (
+                {topPicks.map((pick, idx) => (
                     <div
-                        key={pick.symbol}
+                        key={`${pick.symbol}-${idx}`}
                         className="flex items-center justify-between gap-2 bg-surface-container px-3 py-2.5"
                     >
                         <div className="flex min-w-0 items-center gap-2">

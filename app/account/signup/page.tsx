@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAtom } from "jotai"
 import { useSignup } from "@/features/auth/application/hooks/useSignup"
@@ -8,6 +8,14 @@ import { useTerms } from "@/features/terms/application/hooks/useTerms"
 import { termsConsentAtom } from "@/features/terms/application/atoms/termsConsentAtom"
 
 export default function AccountSignupPage() {
+    return (
+        <Suspense>
+            <AccountSignupContent />
+        </Suspense>
+    )
+}
+
+function AccountSignupContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { terms } = useTerms()

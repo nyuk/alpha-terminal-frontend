@@ -12,7 +12,15 @@ export interface SentimentDistribution {
     total: number
 }
 
+export interface TopPick {
+    symbol: string
+    name: string
+    sentiment_score: number
+    confidence: number
+}
+
 export interface HomeStats {
     gauge: SentimentGauge
     distribution: SentimentDistribution
+    topPicks: TopPick[]
 }

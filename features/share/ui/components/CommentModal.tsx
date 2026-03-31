@@ -51,7 +51,7 @@ export function CommentModal({ comments, loading, onOpen, onClose, onSubmit, ope
                 onClick={onClose}
                 aria-label="닫기"
             />
-            <div className="relative z-10 w-full max-w-lg rounded-t-2xl bg-gray-900 p-5 shadow-xl md:rounded-2xl">
+            <div className="relative z-10 w-full max-w-lg rounded-t-2xl bg-gray-900 p-5 pb-20 shadow-xl md:rounded-2xl md:pb-5">
                 <div className="mb-4 flex items-center justify-between">
                     <h3 className="text-base font-semibold text-gray-100">댓글</h3>
                     <button

@@ -10,7 +10,7 @@ const fetcher = (_key: string, limit: number, offset: number) =>
 export function useSharedCards(limit = 10) {
     const { data, error, isLoading, mutate } = useSWR<SharedCardListResponse>(
         ["/card-share", limit, 0],
-        ([, l, o]) => fetchSharedCards(l, o),
+        ([, l, o]) => fetchSharedCards(l as number, o as number),
         {
             revalidateOnFocus: true,       // 탭 활성화 시 즉시 갱신
             revalidateOnReconnect: true,   // 네트워크 재연결 시 갱신

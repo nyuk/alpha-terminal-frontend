@@ -1,12 +1,20 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAtom } from "jotai"
 import { useTerms } from "@/features/terms/application/hooks/useTerms"
 import { termsConsentAtom } from "@/features/terms/application/atoms/termsConsentAtom"
 
 export default function TermsPage() {
+    return (
+        <Suspense>
+            <TermsContent />
+        </Suspense>
+    )
+}
+
+function TermsContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { terms } = useTerms()

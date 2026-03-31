@@ -1,10 +1,18 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { useSearchParams } from "next/navigation"
 import { useSignup } from "@/features/auth/application/hooks/useSignup"
 
 export default function SignupPage() {
+    return (
+        <Suspense>
+            <SignupContent />
+        </Suspense>
+    )
+}
+
+function SignupContent() {
     const searchParams = useSearchParams()
     const [nickname, setNickname] = useState("")
     const [email, setEmail] = useState("")
