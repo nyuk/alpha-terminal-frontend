@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { fetchAccountSettings, updateAccountSettings } from "../../infrastructure/api/accountSettingsApi"
 
 export function useAccountSettings() {
-    const [isWatchlistPublic, setIsWatchlistPublic] = useState(false)
+    const [isWatchlistPublic, setIsWatchlistPublic] = useState(true)
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
 
