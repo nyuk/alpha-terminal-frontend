@@ -26,12 +26,22 @@ async function handler(
     body = await request.arrayBuffer();
   }
 
-  const backendResponse = await fetch(url, {
-    method: request.method,
-    headers: requestHeaders,
-    body: body,
-    redirect: "manual",
-  });
+  let backendResponse: Response;
+  try {
+    backendResponse = await fetch(url, {
+      method: request.method,
+      headers: requestHeaders,
+      body: body,
+      redirect: "manual",
+    });
+  } catch (err) {
+    const cause = err instanceof Error ? err.cause : err;
+    console.error("[proxy] fetch failed", { url, method: request.method, err, cause });
+    return new NextResponse(
+      JSON.stringify({ error: "fetch failed", url, message: String(err), cause: String(cause) }),
+      { status: 502, headers: { "content-type": "application/json" } }
+    );
+  }
 
   // 리다이렉트 응답은 브라우저에 직접 전달
   if (backendResponse.status >= 300 && backendResponse.status < 400) {
