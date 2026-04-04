@@ -1,12 +1,9 @@
 import { useState, useCallback } from "react"
-import { useAtom } from "jotai"
 import { useRouter } from "next/navigation"
-import { authStateAtom } from "../atoms/authAtom"
-import { signUpUser, ApiError, detectAuthState } from "../../infrastructure/api/authApi"
+import { signUpUser, ApiError } from "../../infrastructure/api/authApi"
 
 export const useSignup = () => {
     const router = useRouter()
-    const [, setAuthState] = useAtom(authStateAtom)
     const [error, setError] = useState<string | null>(null)
     const [isLoading, setIsLoading] = useState(false)
 
@@ -14,9 +11,8 @@ export const useSignup = () => {
         setIsLoading(true)
         setError(null)
         try {
-            const redirectUrl = await signUpUser({ nickname, email })
-            setAuthState(detectAuthState())
-            router.push(redirectUrl || "/")
+            await signUpUser({ nickname, email })
+            window.location.href = "/"
         } catch (err) {
             const status = err instanceof ApiError ? err.status : undefined
             if (status === 401) {
@@ -31,7 +27,7 @@ export const useSignup = () => {
         } finally {
             setIsLoading(false)
         }
-    }, [router, setAuthState])
+    }, [router])
 
     return { register, error, isLoading }
 }
