@@ -60,7 +60,8 @@ jobs:
           docker run -d \
             --name alphadesk-web \
             -p 3000:3000 \
-            -e BACKEND_URL=http://localhost:33333 \
+            -e BACKEND_URL=http://alphadesk-api:33333 \
+            --network alphadesk-network \
             --restart unless-stopped \
             ghcr.io/${{ secrets.REPO_USER }}/multi-agent-ui:latest
 
