@@ -46,7 +46,7 @@ export default function TopBar() {
                 <nav className="hidden md:flex items-center gap-4 font-headline uppercase tracking-tighter text-sm font-bold h-10">
                     {NAV_ITEMS.map(({ href, label, exact }) => (
                         <Link
-                            key={href}
+                            key={label}
                             href={href}
                             className={
                                 (exact ? pathname === href : pathname.startsWith(href))
