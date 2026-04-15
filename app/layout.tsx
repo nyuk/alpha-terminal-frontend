@@ -24,7 +24,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-    title: "ALPHA_DESK | TERMINAL_V1.0",
+    title: "ALPHA_TERMINAL | TERMINAL_V1.0",
     description: "AI 기반 주식 분석 워크스테이션",
 }
 
@@ -42,7 +42,7 @@ export default function RootLayout({
                 />
                 <script
                     dangerouslySetInnerHTML={{
-                        __html: `(function(){var t=localStorage.getItem("alpha-desk-theme");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark")})()`,
+                        __html: `(function(){var t=localStorage.getItem("alpha-terminal-theme");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark")})()`,
                     }}
                 />
             </head>

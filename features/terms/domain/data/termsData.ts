@@ -9,7 +9,7 @@ export const TERMS_DATA: TermItem[] = [
             {
                 title: "제 1 조 (목적)",
                 content: [
-                    "본 약관은 Alpha Desk(이하 '서비스')가 제공하는 주식 정보 분석 서비스의 이용 조건 및 절차를 규정합니다.",
+                    "본 약관은 Alpha Terminal(이하 '서비스')가 제공하는 주식 정보 분석 서비스의 이용 조건 및 절차를 규정합니다.",
                 ],
             },
             {

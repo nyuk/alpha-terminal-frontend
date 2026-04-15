@@ -4,7 +4,7 @@ import { useAtom } from "jotai"
 import { useCallback, useEffect, useRef } from "react"
 import { themeAtom, type Theme } from "../atoms/themeAtom"
 
-const STORAGE_KEY = "alpha-desk-theme"
+const STORAGE_KEY = "alpha-terminal-theme"
 
 export function useTheme() {
     const [theme, setTheme] = useAtom(themeAtom)

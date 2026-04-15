@@ -19,7 +19,7 @@ export function SNSShareModal({ open, onClose, cardId, symbol, name, summary }: 
 
     const baseUrl = env.shareBaseUrl || (typeof window !== "undefined" ? window.location.origin : "")
     const shareUrl = `${baseUrl}/share/${cardId}`
-    const shareText = `[Alpha Desk AI 분석] ${symbol} ${name}\n${summary.slice(0, 80)}...`
+    const shareText = `[Alpha Terminal AI 분석] ${symbol} ${name}\n${summary.slice(0, 80)}...`
     const shareTitle = `${symbol} ${name} AI 분석`
 
     // OG 이미지 URL

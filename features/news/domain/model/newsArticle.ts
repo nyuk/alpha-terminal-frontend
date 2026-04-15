@@ -27,6 +27,22 @@ export interface SaveArticleResponse {
     saved_at: string
 }
 
+export interface SaveInterestArticleRequest {
+    title: string
+    published_at: string | null
+    source: string
+    link: string
+}
+
+export interface SaveInterestArticleResponse {
+    id: number
+    title: string
+    source: string | null
+    link: string
+    published_at: string | null
+    content: string
+}
+
 export interface SavedArticleItem {
     id: number
     title: string

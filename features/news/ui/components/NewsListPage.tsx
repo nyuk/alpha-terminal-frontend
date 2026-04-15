@@ -3,19 +3,20 @@
 import Link from "next/link"
 import { useMemo, useState } from "react"
 import { ClientPaginationBar } from "@/app/components/ClientPaginationBar"
-import { useNewsList, type MarketFilter } from "@/features/news/application/hooks/useNewsList"
+import { useNewsList, type MarketFilter, type SaveResult } from "@/features/news/application/hooks/useNewsList"
 import type { NewsArticleItem } from "@/features/news/domain/model/newsArticle"
 
 type SortOrder = "newest" | "oldest"
+type SaveState = "idle" | "saving" | SaveResult
 
 function NewsItem({
     article,
     onSave,
 }: {
     article: NewsArticleItem
-    onSave: (article: NewsArticleItem) => Promise<"ok" | "duplicate" | "error">
+    onSave: (article: NewsArticleItem) => Promise<SaveResult>
 }) {
-    const [saveState, setSaveState] = useState<"idle" | "saving" | "ok" | "duplicate" | "error">("idle")
+    const [saveState, setSaveState] = useState<SaveState>("idle")
 
     const handleSave = async () => {
         if (saveState !== "idle") return
@@ -24,19 +25,21 @@ function NewsItem({
         setSaveState(result)
     }
 
-    const saveLabel: Record<typeof saveState, string> = {
+    const saveLabel: Record<SaveState, string> = {
         idle: "SAVE",
         saving: "SAVING...",
         ok: "SAVED",
         duplicate: "ALREADY SAVED",
+        unauthenticated: "LOGIN REQUIRED",
         error: "ERROR",
     }
 
-    const saveCls: Record<typeof saveState, string> = {
+    const saveCls: Record<SaveState, string> = {
         idle: "border-outline text-on-surface-variant hover:bg-primary hover:text-white hover:border-primary",
         saving: "border-outline text-outline cursor-not-allowed opacity-50",
         ok: "border-primary text-primary",
         duplicate: "border-outline-variant text-outline",
+        unauthenticated: "border-error text-error",
         error: "border-error text-error",
     }
 

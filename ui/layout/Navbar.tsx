@@ -74,7 +74,7 @@ export default function Navbar() {
         <nav className={navbarStyles.nav}>
             <div className={navbarStyles.navInner}>
                 <div className={navbarStyles.logo}>
-                    <Link href="/">Alpha Desk</Link>
+                    <Link href="/">Alpha Terminal</Link>
                 </div>
 
                 {/* Desktop */}

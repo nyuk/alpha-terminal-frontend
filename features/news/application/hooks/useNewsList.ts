@@ -1,15 +1,17 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtom, useAtomValue, useSetAtom } from "jotai"
+import { useRouter } from "next/navigation"
 import { ApiError } from "@/infrastructure/http/apiError"
 import { isLoggedInAtom } from "@/features/auth/application/selectors/authSelectors"
 import { fetchWatchlist } from "@/features/watchlist/infrastructure/api/watchlistApi"
-import { searchNews, saveArticle } from "@/features/news/infrastructure/api/newsApi"
+import { searchNews, saveInterestArticle } from "@/features/news/infrastructure/api/newsApi"
 import { newsListAtom } from "@/features/news/application/atoms/newsListAtom"
+import { interestArticleAtom } from "@/features/news/application/atoms/interestArticleAtom"
 import { createNewsCommand } from "@/features/news/application/commands/newsCommand"
 import type { NewsIntent } from "@/features/news/domain/intent/newsIntent"
-import type { NewsArticleItem, NewsSearchResponse, SaveArticleRequest } from "@/features/news/domain/model/newsArticle"
+import type { NewsArticleItem, NewsSearchResponse, SaveInterestArticleRequest } from "@/features/news/domain/model/newsArticle"
 
 const PAGE_SIZE = 10
 const MAX_KEYWORD_ITEMS = 5
@@ -46,10 +48,14 @@ async function buildMarketKeywords(): Promise<MarketKeywords> {
     }
 }
 
+export type SaveResult = "ok" | "duplicate" | "unauthenticated" | "error"
+
 export function useNewsList() {
     const isLoggedIn = useAtomValue(isLoggedInAtom)
     const [state, setState] = useAtom(newsListAtom)
+    const setInterestArticle = useSetAtom(interestArticleAtom)
     const [marketFilter, setMarketFilter] = useState<MarketFilter>("ALL")
+    const router = useRouter()
 
     const fetchPage = useCallback(async (page: number, market: MarketFilter) => {
         setState((s) => ({ ...s, isLoading: true, error: null, page }))
@@ -92,12 +98,36 @@ export function useNewsList() {
         }
     }, [setState])
 
+    const save = useCallback(async (article: NewsArticleItem): Promise<SaveResult> => {
+        if (!isLoggedIn) return "unauthenticated"
+
+        const req: SaveInterestArticleRequest = {
+            title: article.title,
+            published_at: article.published_at,
+            source: article.source,
+            link: article.link ?? "",
+        }
+        try {
+            const response = await saveInterestArticle(req)
+            setInterestArticle(response)
+            router.push("/news/saved")
+            return "ok"
+        } catch (err) {
+            if (err instanceof ApiError && err.status === 401) return "unauthenticated"
+            if (err instanceof ApiError && err.status === 409) return "duplicate"
+            return "error"
+        }
+    }, [isLoggedIn, setInterestArticle, router])
+
     const dispatch = useCallback(
         (intent: NewsIntent) => {
-            const commands = createNewsCommand((page) => fetchPage(page, marketFilter))
+            const commands = createNewsCommand(
+                (page) => fetchPage(page, marketFilter),
+                (article) => { save(article) },
+            )
             commands[intent.type](intent)
         },
-        [fetchPage, marketFilter],
+        [fetchPage, marketFilter, save],
     )
 
     const changePage = useCallback(
@@ -111,24 +141,6 @@ export function useNewsList() {
         },
         [],
     )
-
-    const save = useCallback(async (article: NewsArticleItem): Promise<"ok" | "duplicate" | "error"> => {
-        const req: SaveArticleRequest = {
-            title: article.title,
-            link: article.link ?? "",
-            source: article.source,
-            snippet: article.snippet,
-            published_at: article.published_at,
-            content: null,
-        }
-        try {
-            await saveArticle(req)
-            return "ok"
-        } catch (err) {
-            if (err instanceof ApiError && err.status === 409) return "duplicate"
-            return "error"
-        }
-    }, [])
 
     useEffect(() => {
         if (isLoggedIn) {

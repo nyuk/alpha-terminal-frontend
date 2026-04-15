@@ -32,7 +32,7 @@ export function SharePublicView({ card }: Props) {
         <main className="mx-auto max-w-lg px-4 py-10">
             <div className="mb-6 flex items-center justify-between">
                 <Link href="/" className="text-sm text-gray-400 hover:text-gray-200">
-                    ← Alpha Desk
+                    ← Alpha Terminal
                 </Link>
                 <span className="text-xs text-gray-500">
                     {card.sharer_nickname} 공유 · {new Date(card.created_at).toLocaleDateString("ko-KR")}
@@ -116,7 +116,7 @@ export function SharePublicView({ card }: Props) {
                     href="/dashboard"
                     className="rounded-full bg-blue-600 px-5 py-2 text-sm font-medium text-white hover:bg-blue-700 transition"
                 >
-                    Alpha Desk에서 분석 보기
+                    Alpha Terminal에서 분석 보기
                 </Link>
             </div>
 

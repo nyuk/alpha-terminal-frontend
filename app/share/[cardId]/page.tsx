@@ -26,14 +26,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { cardId } = await params
     const card = await fetchCard(cardId)
     if (!card) {
-        return { title: "Alpha Desk - 공유 카드" }
+        return { title: "Alpha Terminal - 공유 카드" }
     }
     const sentimentLabel: Record<string, string> = {
         POSITIVE: "긍정",
         NEGATIVE: "부정",
         NEUTRAL: "중립",
     }
-    const title = `[Alpha Desk] ${card.symbol} ${card.name} AI 분석`
+    const title = `[Alpha Terminal] ${card.symbol} ${card.name} AI 분석`
     const description = `${sentimentLabel[card.sentiment] ?? ""} ${card.sentiment_score > 0 ? "+" : ""}${card.sentiment_score.toFixed(2)} | ${card.summary.slice(0, 100)}...`
 
     const ogImageParams = new URLSearchParams({
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title,
             description,
             type: "article",
-            siteName: "Alpha Desk",
+            siteName: "Alpha Terminal",
             url: shareUrl,
             images: [{ url: ogImageUrl, width: 1200, height: 630, alt: title }],
         },

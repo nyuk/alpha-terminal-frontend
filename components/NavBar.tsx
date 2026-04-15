@@ -44,7 +44,7 @@ export default function NavBar() {
           className="flex items-center gap-2 text-base font-bold text-gray-900 dark:text-gray-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
         >
           <span className="text-blue-600 dark:text-blue-400 text-lg">▲</span>
-          Alpha Desk
+          Alpha Terminal
         </Link>
 
         {/* 네비게이션 링크 */}

@@ -1,21 +1,25 @@
-# Base image를 ARM64로 명시
-FROM node:20-alpine
-
-# 작업 디렉토리 설정
+FROM node:20-alpine AS builder
 WORKDIR /app
-
-# 의존성 설치
 COPY package*.json ./
-RUN npm install --frozen-lockfile --loglevel=error
-
-# 앱 코드 복사
+RUN npm ci
 COPY . .
 
-# Next.js 빌드
+ARG NEXT_PUBLIC_API_BASE_URL=/api
+ARG NEXT_PUBLIC_KAKAO_LOGIN_PATH=/kakao-authentication/request-oauth-link
+ARG NEXT_PUBLIC_KAKAO_JS_KEY=""
+ARG NEXT_PUBLIC_SHARE_BASE_URL=""
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_KAKAO_LOGIN_PATH=$NEXT_PUBLIC_KAKAO_LOGIN_PATH
+ENV NEXT_PUBLIC_KAKAO_JS_KEY=$NEXT_PUBLIC_KAKAO_JS_KEY
+ENV NEXT_PUBLIC_SHARE_BASE_URL=$NEXT_PUBLIC_SHARE_BASE_URL
+
 RUN npm run build
 
-# 포트 설정
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+COPY --from=builder /app/public ./public
 EXPOSE 3000
-
-# 앱 실행
-CMD ["npm", "start"]
+CMD ["node", "server.js"]
