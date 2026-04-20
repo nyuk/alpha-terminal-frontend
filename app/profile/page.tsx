@@ -16,6 +16,9 @@ export default function ProfilePage() {
         if (state.status === "UNAUTHENTICATED") {
             router.replace("/login")
         }
+        if (state.status === "PENDING_TERMS") {
+            router.replace("/terms")
+        }
     }, [state.status, router])
 
     if (state.status === "LOADING") {

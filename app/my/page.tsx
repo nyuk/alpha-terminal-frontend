@@ -46,6 +46,9 @@ export default function MyPage() {
         if (authState.status === 'UNAUTHENTICATED') {
             router.replace('/login')
         }
+        if (authState.status === 'PENDING_TERMS') {
+            router.replace('/terms')
+        }
     }, [authState.status, router])
 
     if (authState.status === 'LOADING') {

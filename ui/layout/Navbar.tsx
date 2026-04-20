@@ -30,7 +30,7 @@ function MenuIcon({ open }: { open: boolean }) {
 }
 
 export default function Navbar() {
-    const { state, logout, loadUser } = useAuth()
+    const { state, logout } = useAuth()
     const router = useRouter()
     const pathname = usePathname()
     const panelId = useId()
@@ -40,10 +40,6 @@ export default function Navbar() {
     const isLoading = state.status === "LOADING" || state.status === "PENDING_TERMS"
 
     const closeMobile = useCallback(() => setMobileOpen(false), [])
-
-    useEffect(() => {
-        loadUser()
-    }, [loadUser])
 
     const menuItemClass = (href: string) =>
         `${navbarStyles.menuItem.base} ${pathname === href ? navbarStyles.menuItem.active : navbarStyles.menuItem.inactive}`
