@@ -1,6 +1,8 @@
 'use client'
 
 import { useMySettings } from '@/features/my/application/hooks/useMySettings'
+import { useLandingPage } from '@/features/my/application/hooks/useLandingPage'
+import { LANDING_PAGES, LANDING_PAGE_LABELS } from '@/features/my/domain/model/landingPage'
 import { ARTICLE_MODE_OPTIONS, type ArticleMode } from '@/features/dashboard/application/atoms/pipelineAtom'
 import { useTheme } from '@/features/theme/application/hooks/useTheme'
 
@@ -12,6 +14,7 @@ function hourLabel(h: number): string {
 
 export function MySettingsSection() {
     const { articleMode, updateArticleMode, briefingSettings, saveBriefingSettings, saveMessage } = useMySettings()
+    const { landingPage, updateLandingPage } = useLandingPage()
     const { theme, toggle } = useTheme()
 
     return (
@@ -106,6 +109,32 @@ export function MySettingsSection() {
                     </span>
                     <span suppressHydrationWarning>{theme === 'dark' ? 'LIGHT_MODE로 전환' : 'DARK_MODE로 전환'}</span>
                 </button>
+            </div>
+
+            {/* 랜딩페이지 설정 */}
+            <div>
+                <div className="font-mono text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">
+                    LANDING_PAGE
+                </div>
+                <div className="font-mono text-xs text-outline mb-3">
+                    로그인 후 이동할 페이지 (관심종목 미설정 시 MY 고정)
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    {LANDING_PAGES.map((page) => (
+                        <button
+                            key={page}
+                            type="button"
+                            onClick={() => updateLandingPage(page)}
+                            className={`font-mono text-xs px-3 py-1.5 border uppercase transition-none ${
+                                landingPage === page
+                                    ? 'border-primary bg-primary text-white font-bold'
+                                    : 'border-outline text-on-surface-variant hover:bg-surface-container'
+                            }`}
+                        >
+                            {LANDING_PAGE_LABELS[page]}
+                        </button>
+                    ))}
+                </div>
             </div>
         </section>
     )

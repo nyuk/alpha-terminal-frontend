@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useAtomValue } from "jotai"
-import { authAtom } from "@/store/authAtom"
+import { authStateAtom } from "@/features/auth/application/atoms/authAtom"
 import { useInvestJudgment } from "@/features/invest/application/hooks/useInvestJudgment"
 
 // 로그 접두사 → 색상 매핑
@@ -57,17 +57,20 @@ function AgentLogPanel({ logs }: { logs: string[] }) {
 }
 
 export function InvestPage() {
-    const authState = useAtomValue(authAtom)
+    const authState = useAtomValue(authStateAtom)
     const router = useRouter()
     const { query, setQuery, result, isLoading, error, logs, submit, reset } = useInvestJudgment()
 
     useEffect(() => {
-        if (authState === "UNAUTHENTICATED") {
+        if (authState.status === "UNAUTHENTICATED") {
             router.replace("/login")
         }
-    }, [authState, router])
+        if (authState.status === "PENDING_TERMS") {
+            router.replace("/terms")
+        }
+    }, [authState.status, router])
 
-    if (authState !== "AUTHENTICATED") return null
+    if (authState.status !== "AUTHENTICATED") return null
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {

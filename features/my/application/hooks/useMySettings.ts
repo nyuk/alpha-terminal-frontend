@@ -5,10 +5,11 @@ import { useAtom } from 'jotai'
 import { articleModeAtom, type ArticleMode } from '@/features/dashboard/application/atoms/pipelineAtom'
 import { getBriefingSettingsLocal, saveBriefingSettingsLocal } from '@/features/my/infrastructure/api/myApi'
 import type { BriefingTimeSettings } from '@/features/my/domain/model/mySettings'
+import { BRIEFING_DEFAULTS } from '@/features/my/domain/model/mySettings'
 
 export function useMySettings() {
     const [articleMode, setArticleMode] = useAtom(articleModeAtom)
-    const [briefingSettings, setBriefingSettings] = useState<BriefingTimeSettings>({ korea_time: 7, us_time: 7 })
+    const [briefingSettings, setBriefingSettings] = useState<BriefingTimeSettings>(BRIEFING_DEFAULTS)
     const [saveMessage, setSaveMessage] = useState<string | null>(null)
 
     useEffect(() => {

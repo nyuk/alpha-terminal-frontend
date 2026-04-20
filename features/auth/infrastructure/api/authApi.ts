@@ -46,13 +46,32 @@ export interface AuthMeResponse {
     account_id?: string
 }
 
+export function mapAuthMeToState(me: AuthMeResponse): AuthState {
+    if (!me.is_registered) {
+        return { status: "PENDING_TERMS" }
+    }
+
+    return {
+        status: "AUTHENTICATED",
+        user: {
+            nickname: me.nickname,
+            email: me.email,
+            accountId: me.account_id ?? "",
+        },
+    }
+}
+
 export async function fetchAuthMe(): Promise<AuthMeResponse> {
-    const res = await fetch(`${env.apiBaseUrl}/authentication/me`, {
-        method: "GET",
-        credentials: "include",
-    })
-    if (!res.ok) throw await readApiError(res)
+    const res = await httpClient.get("/authentication/me")
     return res.json()
+}
+
+export async function fetchAuthState(): Promise<AuthState> {
+    try {
+        return mapAuthMeToState(await fetchAuthMe())
+    } catch {
+        return detectAuthState()
+    }
 }
 
 export async function registerUser(params: { nickname: string; email: string }): Promise<string> {

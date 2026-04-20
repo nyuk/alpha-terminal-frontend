@@ -17,7 +17,10 @@ export default function BoardEditPage() {
         if (authState.status === "UNAUTHENTICATED") {
             router.replace("/login")
         }
-    }, [authState, router])
+        if (authState.status === "PENDING_TERMS") {
+            router.replace("/terms")
+        }
+    }, [authState.status, router])
 
     const {
         title,
@@ -31,7 +34,7 @@ export default function BoardEditPage() {
         submit,
     } = useBoardEdit(boardId)
 
-    if (authState.status === "UNAUTHENTICATED") return null
+    if (authState.status !== "AUTHENTICATED") return null
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()

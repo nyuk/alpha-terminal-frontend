@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/features/auth/application/hooks/useAuth"
 import { KakaoLoginButton } from "@/features/auth/ui/components/LoginButton"
@@ -11,20 +11,11 @@ const oauthButtons = [
 ]
 
 export function LoginContent() {
-    const { state, loadUser } = useAuth()
+    const { state } = useAuth()
     const router = useRouter()
     const searchParams = useSearchParams()
     const reason = searchParams.get("reason")
     const expiredSignupSession = reason === "signup-session-expired"
-    const [mounted, setMounted] = useState(false)
-
-    useEffect(() => {
-        setMounted(true)
-    }, [])
-
-    useEffect(() => {
-        loadUser()
-    }, [loadUser])
 
     useEffect(() => {
         if (state.status === "AUTHENTICATED") {
@@ -32,7 +23,7 @@ export function LoginContent() {
         }
     }, [state.status, router])
 
-    if (!mounted || state.status === "LOADING") {
+    if (state.status === "LOADING") {
         return (
             <div className="flex justify-center items-center h-full">
                 <span className="font-mono text-[11px] text-on-surface-variant uppercase tracking-widest animate-pulse">

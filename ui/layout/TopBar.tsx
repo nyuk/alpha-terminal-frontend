@@ -2,9 +2,8 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useCallback, useEffect } from "react"
+import { useCallback } from "react"
 import { useAuth } from "@/features/auth/application/hooks/useAuth"
-import { useTheme } from "@/features/theme/application/hooks/useTheme"
 import NotificationBell from "@/features/notification/ui/components/NotificationBell"
 
 const NAV_ITEMS = [
@@ -16,14 +15,10 @@ const NAV_ITEMS = [
 ]
 
 export default function TopBar() {
-    const { state, logout, loadUser } = useAuth()
+    const { state, logout } = useAuth()
     const router = useRouter()
     const pathname = usePathname()
-const isLoggedIn = state.status === "AUTHENTICATED"
-
-    useEffect(() => {
-        loadUser()
-    }, [loadUser])
+    const isLoggedIn = state.status === "AUTHENTICATED"
 
     const handleLogout = useCallback(async () => {
         await logout()
@@ -74,15 +69,6 @@ const isLoggedIn = state.status === "AUTHENTICATED"
                                 <span className="text-[9px] opacity-70 truncate normal-case leading-tight">{state.user.email}</span>
                             )}
                         </span>
-                    </Link>
-                )}
-
-                {isLoggedIn && (
-                    <Link
-                        href="/profile"
-                        className="border border-outline-variant font-mono text-[10px] text-inverse-on-surface px-2 py-0.5 hover:text-white hover:border-inverse-primary transition-none uppercase cursor-pointer"
-                    >
-                        PROFILE
                     </Link>
                 )}
 

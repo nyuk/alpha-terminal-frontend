@@ -3,13 +3,14 @@
 import Link from "next/link"
 import { useMemo, useState } from "react"
 import { useAtomValue } from "jotai"
-import { authAtom } from "@/store/authAtom"
+import { authStateAtom } from "@/features/auth/application/atoms/authAtom"
 import { useBoardList } from "@/features/board/application/hooks/useBoardList"
 
 type CategoryFilter = "ALL" | "AI_ANALYSIS" | "GENERAL"
 
 export default function BoardPage() {
-    const isAuthenticated = useAtomValue(authAtom) === "AUTHENTICATED"
+    const authState = useAtomValue(authStateAtom)
+    const isAuthenticated = authState.status === "AUTHENTICATED"
     const { items, page, totalPages, isLoading, error, goToPage } = useBoardList()
     const [titleQuery, setTitleQuery] = useState("")
     const [category, setCategory] = useState<CategoryFilter>("ALL")

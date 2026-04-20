@@ -3,13 +3,14 @@
 import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/features/auth/application/hooks/useAuth"
+import { resolveLoginRedirect } from "@/features/auth/application/hooks/resolveLoginRedirect"
 
 export default function AuthCallbackPage() {
     const router = useRouter()
     const { handleAuthCallback } = useAuth()
 
     useEffect(() => {
-        handleAuthCallback().then((result) => {
+        handleAuthCallback().then(async (result) => {
             if (result.result === "pending_terms") {
                 const params = new URLSearchParams({
                     nickname: result.nickname,
@@ -17,7 +18,8 @@ export default function AuthCallbackPage() {
                 })
                 router.replace(`/terms?${params}`)
             } else if (result.result === "authenticated") {
-                router.replace("/my")
+                const path = await resolveLoginRedirect()
+                router.replace(path)
             } else {
                 router.replace("/login")
             }

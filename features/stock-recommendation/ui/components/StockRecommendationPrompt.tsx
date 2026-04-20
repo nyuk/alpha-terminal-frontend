@@ -16,7 +16,10 @@ export function StockRecommendationPrompt() {
         if (authState.status === "UNAUTHENTICATED") {
             router.replace("/login")
         }
-    }, [authState, router])
+        if (authState.status === "PENDING_TERMS") {
+            router.replace("/terms")
+        }
+    }, [authState.status, router])
 
     // LOADING 또는 리다이렉트 직전에는 렌더하지 않음 (flash 방지)
     if (authState.status !== "AUTHENTICATED") return null
