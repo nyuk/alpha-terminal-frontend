@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect } from "react"
 import { useAtom, useAtomValue, useSetAtom } from "jotai"
 import { useRouter } from "next/navigation"
 import { ApiError } from "@/infrastructure/http/apiError"
@@ -9,16 +9,17 @@ import { fetchWatchlist } from "@/features/watchlist/infrastructure/api/watchlis
 import { searchNews, saveInterestArticle } from "@/features/news/infrastructure/api/newsApi"
 import { newsListAtom } from "@/features/news/application/atoms/newsListAtom"
 import { interestArticleAtom } from "@/features/news/application/atoms/interestArticleAtom"
+import { newsMarketFilterAtom, type MarketFilter } from "@/features/news/application/atoms/newsFilterAtom"
 import { createNewsCommand } from "@/features/news/application/commands/newsCommand"
 import type { NewsIntent } from "@/features/news/domain/intent/newsIntent"
 import type { NewsArticleItem, NewsSearchResponse, SaveInterestArticleRequest } from "@/features/news/domain/model/newsArticle"
+
+export type { MarketFilter } from "@/features/news/application/atoms/newsFilterAtom"
 
 const PAGE_SIZE = 10
 const MAX_KEYWORD_ITEMS = 5
 
 const KR_MARKETS = ["KOSDAQ", "KOSPI", "KR"]
-
-export type MarketFilter = "ALL" | "KR" | "US"
 
 interface MarketKeywords {
     kr: string | null
@@ -54,7 +55,7 @@ export function useNewsList() {
     const isLoggedIn = useAtomValue(isLoggedInAtom)
     const [state, setState] = useAtom(newsListAtom)
     const setInterestArticle = useSetAtom(interestArticleAtom)
-    const [marketFilter, setMarketFilter] = useState<MarketFilter>("ALL")
+    const [marketFilter, setMarketFilter] = useAtom(newsMarketFilterAtom)
     const router = useRouter()
 
     const fetchPage = useCallback(async (page: number, market: MarketFilter) => {

@@ -1,16 +1,15 @@
 "use client"
 
-import { useState } from "react"
+import { useAtom } from "jotai"
 import { useWatchlist } from "@/features/watchlist/application/hooks/useWatchlist"
+import { youtubeSelectedNameAtom, youtubeSortOrderAtom } from "@/features/youtube/application/atoms/youtubeAtom"
 import { useYoutubeList } from "../../application/hooks/useYoutubeList"
 import { YoutubeVideoCard } from "./YoutubeVideoCard"
 
-type SortOrder = "desc" | "asc"
-
 export function YoutubeVideoFeed() {
     const { items: watchlistItems } = useWatchlist()
-    const [selectedName, setSelectedName] = useState<string | undefined>(undefined)
-    const [sortOrder, setSortOrder] = useState<SortOrder>("desc")
+    const [selectedName, setSelectedName] = useAtom(youtubeSelectedNameAtom)
+    const [sortOrder, setSortOrder] = useAtom(youtubeSortOrderAtom)
 
     const activeStock = selectedName ?? watchlistItems[0]?.name
 
@@ -35,7 +34,7 @@ export function YoutubeVideoFeed() {
                 </div>
                 <button
                     type="button"
-                    onClick={() => setSortOrder((o) => (o === "desc" ? "asc" : "desc"))}
+                    onClick={() => setSortOrder((o: "desc" | "asc") => (o === "desc" ? "asc" : "desc"))}
                     className="flex items-center gap-1 border border-outline px-3 py-1.5 font-mono text-xs uppercase text-on-surface-variant hover:border-primary hover:text-primary transition-none shrink-0"
                     title={sortOrder === "desc" ? "오래된순으로 변경" : "최신순으로 변경"}
                 >

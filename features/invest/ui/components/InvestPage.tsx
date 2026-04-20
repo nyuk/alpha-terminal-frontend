@@ -2,8 +2,9 @@
 
 import { useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { useAtomValue } from "jotai"
+import { useAtomValue, useSetAtom } from "jotai"
 import { authStateAtom } from "@/features/auth/application/atoms/authAtom"
+import { investIsLoadingAtom } from "@/features/invest/application/atoms/investJudgmentAtom"
 import { useInvestJudgment } from "@/features/invest/application/hooks/useInvestJudgment"
 
 // 로그 접두사 → 색상 매핑
@@ -58,6 +59,7 @@ function AgentLogPanel({ logs }: { logs: string[] }) {
 
 export function InvestPage() {
     const authState = useAtomValue(authStateAtom)
+    const setIsLoading = useSetAtom(investIsLoadingAtom)
     const router = useRouter()
     const { query, setQuery, result, isLoading, error, logs, submit, reset } = useInvestJudgment()
 
@@ -69,6 +71,11 @@ export function InvestPage() {
             router.replace("/terms")
         }
     }, [authState.status, router])
+
+    // SSE 스트림 진행 중 페이지 이탈 시 isLoading 정리
+    useEffect(() => {
+        return () => { setIsLoading(false) }
+    }, [setIsLoading])
 
     if (authState.status !== "AUTHENTICATED") return null
 
