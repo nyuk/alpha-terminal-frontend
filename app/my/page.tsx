@@ -8,6 +8,7 @@ import { useWatchlist } from '@/features/watchlist/application/hooks/useWatchlis
 import { MyWatchlistSection } from '@/features/my/ui/components/MyWatchlistSection'
 import { MyBriefingSection } from '@/features/my/ui/components/MyBriefingSection'
 import { MySettingsSection } from '@/features/my/ui/components/MySettingsSection'
+import { MyProfileSection } from '@/features/my/ui/components/MyProfileSection'
 
 const GUIDE_STEPS = [
     { step: '01', icon: 'visibility', text: '아래 MY_WATCHLIST에서 관심 종목을 추가하세요.' },
@@ -83,6 +84,7 @@ export default function MyPage() {
                     <MyBriefingSection />
                     <MyWatchlistSection />
                     <MySettingsSection />
+                    <MyProfileSection />
                 </div>
             </main>
         </>
