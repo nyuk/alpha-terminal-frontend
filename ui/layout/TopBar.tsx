@@ -63,7 +63,7 @@ export default function TopBar() {
                         }`}
                     >
                         <span className="material-symbols-outlined text-[13px] shrink-0">person</span>
-                        <span className="flex flex-col min-w-0">
+                        <span className="hidden sm:flex flex-col min-w-0">
                             <span className="uppercase truncate leading-tight">{state.user.nickname}</span>
                             {state.user.email && (
                                 <span className="text-[9px] opacity-70 truncate normal-case leading-tight">{state.user.email}</span>
