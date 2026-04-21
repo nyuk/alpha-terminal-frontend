@@ -1,6 +1,7 @@
 import { httpClient } from '@/infrastructure/http/httpClient'
 import type { BriefingTimeSettings } from '@/features/my/domain/model/mySettings'
 import { BRIEFING_DEFAULTS } from '@/features/my/domain/model/mySettings'
+import type { ArticleMode } from '@/features/dashboard/application/atoms/pipelineAtom'
 
 export async function updateUserEmail(email: string): Promise<void> {
     await httpClient.patch('/users/me/email', { email })
@@ -21,4 +22,16 @@ export function getBriefingSettingsLocal(): BriefingTimeSettings {
 
 export function saveBriefingSettingsLocal(settings: BriefingTimeSettings): void {
     localStorage.setItem(BRIEFING_SETTINGS_KEY, JSON.stringify(settings))
+}
+
+const ARTICLE_MODE_KEY = 'alpha_article_mode'
+const ARTICLE_MODE_DEFAULT: ArticleMode = 'latest_3'
+
+export function getArticleModeLocal(): ArticleMode {
+    if (typeof window === 'undefined') return ARTICLE_MODE_DEFAULT
+    return (localStorage.getItem(ARTICLE_MODE_KEY) as ArticleMode) ?? ARTICLE_MODE_DEFAULT
+}
+
+export function saveArticleModeLocal(mode: ArticleMode): void {
+    localStorage.setItem(ARTICLE_MODE_KEY, mode)
 }
