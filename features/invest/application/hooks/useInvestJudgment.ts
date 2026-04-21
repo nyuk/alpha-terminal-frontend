@@ -1,20 +1,20 @@
 "use client"
 
-import { useAtom } from "jotai"
 import { useCallback, useEffect } from "react"
+import { useAtom } from "jotai"
 import { streamInvestmentDecision } from "@/features/invest/infrastructure/api/investApi"
 import {
     investQueryAtom,
-    investResultAtom,
     investIsLoadingAtom,
+    investResultAtom,
     investErrorAtom,
     investLogsAtom,
 } from "@/features/invest/application/atoms/investJudgmentAtom"
 
 export function useInvestJudgment() {
     const [query, setQuery] = useAtom(investQueryAtom)
-    const [result, setResult] = useAtom(investResultAtom)
     const [isLoading, setIsLoading] = useAtom(investIsLoadingAtom)
+    const [result, setResult] = useAtom(investResultAtom)
     const [error, setError] = useAtom(investErrorAtom)
     const [logs, setLogs] = useAtom(investLogsAtom)
 
