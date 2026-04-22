@@ -37,7 +37,7 @@ export function MyWatchlistSection() {
     }
 
     return (
-        <section className="border border-outline bg-surface-container-low px-5 py-4">
+        <section id="watchlist" className="border border-outline bg-surface-container-low px-5 py-4">
             <div className="mb-3 font-mono text-xs font-bold text-on-surface uppercase tracking-widest">
                 MY_WATCHLIST
                 <span className="ml-2 font-normal text-outline">({items.length})</span>

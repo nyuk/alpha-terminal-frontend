@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useHome } from "@/features/home/application/hooks/useHome"
 import { HomeSentimentGauge } from "@/app/components/HomeSentimentGauge"
 import { HomeAlphaTopPicks } from "@/app/components/HomeAlphaTopPicks"
+import { HomeTodayBriefing } from "@/app/components/HomeTodayBriefing"
 
 function Skeleton() {
     return (
@@ -55,18 +56,18 @@ export default function HomePage() {
                     {isReady && (
                         <div className="flex items-center gap-2 pr-2">
                             <Link
-                                href="/dashboard"
+                                href="/dashboard?autorun=true"
                                 className="flex items-center gap-1 bg-primary px-3 py-1.5 font-mono text-[10px] text-white uppercase hover:opacity-90"
                             >
                                 <span className="material-symbols-outlined text-[12px]">play_arrow</span>
                                 RUN_ANALYSIS
                             </Link>
                             <Link
-                                href="/my"
+                                href="/my#watchlist"
                                 className="flex items-center gap-1 border border-outline px-3 py-1.5 font-mono text-[10px] text-on-surface-variant hover:text-primary hover:border-primary uppercase"
                             >
                                 <span className="material-symbols-outlined text-[12px]">person</span>
-                                MY_PAGE
+                                관심종목 설정
                             </Link>
                         </div>
                     )}
@@ -157,6 +158,7 @@ export default function HomePage() {
                             distribution={state.stats.distribution}
                         />
                         <HomeAlphaTopPicks topPicks={state.stats.topPicks} />
+                        {isReady && <HomeTodayBriefing briefing={state.briefing} />}
                         {isPublic && <FeatureHighlights />}
                     </div>
                 )}

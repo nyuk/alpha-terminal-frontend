@@ -1,6 +1,7 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useDashboard } from "@/features/dashboard/application/hooks/useDashboard"
 import { excludeCurrentSummaryFromLogs } from "@/features/dashboard/domain/excludeCurrentSummaryFromLogs"
 import { useDailyReturnsHeatmap } from "@/features/stock/application/hooks/useDailyReturnsHeatmap"
@@ -16,6 +17,10 @@ export default function DashboardPage() {
     const { state: authState } = useAuth()
     const isLoggedIn = authState.status === "AUTHENTICATED"
     const recordRecentlyViewed = useRecordRecentlyViewed()
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const autorun = searchParams.get("autorun") === "true"
+    const autorunFired = useRef(false)
 
     const handleCardClick = useCallback(
         (symbol: string, name: string) => {
@@ -76,6 +81,13 @@ export default function DashboardPage() {
         if (selectedSymbols.length === 0) return
         await executePipeline(selectedSymbols)
     }
+
+    useEffect(() => {
+        if (!autorun || autorunFired.current || !hasInitializedSelection || selectedSymbols.length === 0 || running) return
+        autorunFired.current = true
+        router.replace("/dashboard")
+        executePipeline(selectedSymbols)
+    }, [autorun, hasInitializedSelection, selectedSymbols, running, router, executePipeline])
 
     const allSkipped = pipelineResult ? pipelineResult.processed.every((p) => p.skipped) : false
     const canRun = selectedSymbols.length > 0
