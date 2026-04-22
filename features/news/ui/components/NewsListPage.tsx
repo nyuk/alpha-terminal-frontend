@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useMemo, useState } from "react"
+import { memo, useMemo, useState } from "react"
 import { ClientPaginationBar } from "@/app/components/ClientPaginationBar"
 import { useNewsList, type MarketFilter, type SaveResult } from "@/features/news/application/hooks/useNewsList"
 import type { NewsArticleItem } from "@/features/news/domain/model/newsArticle"
@@ -9,7 +9,9 @@ import type { NewsArticleItem } from "@/features/news/domain/model/newsArticle"
 type SortOrder = "newest" | "oldest"
 type SaveState = "idle" | "saving" | SaveResult
 
-function NewsItem({
+// 큰 뉴스 리스트에서 상위 상태가 변해도 각 행이 불필요하게 리렌더되지 않도록 memo 로 분리한다.
+// `article` 참조·`onSave` 참조가 안정적이면(훅이 useCallback 으로 반환) 재랜더를 건너뛴다.
+const NewsItem = memo(function NewsItem({
     article,
     onSave,
 }: {
@@ -72,7 +74,7 @@ function NewsItem({
             </button>
         </li>
     )
-}
+})
 
 const MARKET_OPTIONS: { value: MarketFilter; label: string }[] = [
     { value: "ALL", label: "ALL" },

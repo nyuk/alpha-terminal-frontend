@@ -30,7 +30,10 @@ export async function* streamInvestmentDecision(query: string): AsyncGenerator<S
         throw new Error((err as { detail?: string }).detail || "투자 판단 요청에 실패했습니다.")
     }
 
-    const reader = res.body!.getReader()
+    if (!res.body) {
+        throw new Error("응답 본문 스트림을 사용할 수 없습니다.")
+    }
+    const reader = res.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ""
 

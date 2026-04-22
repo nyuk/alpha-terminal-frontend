@@ -24,13 +24,32 @@ import {
 
 const DASHBOARD_KEY = "/dashboard/data"
 
+// BL-FE-76: Promise.allSettled로 부분 실패 대응
+// - 401 → 즉시 throw (재로그인 유도)
+// - 전체 실패 → throw (에러 배너 + RETRY)
+// - 일부 실패 → 성공한 데이터만 반환, 실패 섹션은 []
 async function fetchDashboardData() {
-    const [summaryData, reportData, logData] = await Promise.all([
+    const [summaryResult, reportResult, logResult] = await Promise.allSettled([
         fetchDashboardSummaries(),
         fetchReportSummaries(),
         fetchAnalysisLogs(),
     ])
-    return { summaries: summaryData, reportSummaries: reportData, analysisLogs: logData }
+
+    for (const result of [summaryResult, reportResult, logResult]) {
+        if (result.status === 'rejected' && result.reason instanceof ApiError && result.reason.status === 401) {
+            throw result.reason
+        }
+    }
+
+    if (summaryResult.status === 'rejected' && reportResult.status === 'rejected' && logResult.status === 'rejected') {
+        throw summaryResult.reason
+    }
+
+    return {
+        summaries: summaryResult.status === 'fulfilled' ? summaryResult.value : [],
+        reportSummaries: reportResult.status === 'fulfilled' ? reportResult.value : [],
+        analysisLogs: logResult.status === 'fulfilled' ? logResult.value : [],
+    }
 }
 
 function formatLoadError(err: unknown): string {

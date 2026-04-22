@@ -3,8 +3,10 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useCallback } from "react"
+import { useAtomValue } from "jotai"
 import { useAuth } from "@/features/auth/application/hooks/useAuth"
 import NotificationBell from "@/features/notification/ui/components/NotificationBell"
+import { investIsLoadingAtom } from "@/features/invest/application/atoms/investJudgmentAtom"
 
 const NAV_ITEMS = [
     { href: "/", label: "HOME", exact: true },
@@ -19,7 +21,9 @@ export default function TopBar() {
     const router = useRouter()
     const pathname = usePathname()
     const isLoggedIn = state.status === "AUTHENTICATED"
+
     const isPendingTerms = state.status === "PENDING_TERMS"
+    const investIsLoading = useAtomValue(investIsLoadingAtom)
 
     const handleLogout = useCallback(async () => {
         await logout()
@@ -36,21 +40,32 @@ export default function TopBar() {
                     ALPHA_TERMINAL
                 </Link>
 
-                {!isPendingTerms && <nav className="hidden md:flex items-center gap-4 font-headline uppercase tracking-tighter text-sm font-bold h-10">
-                    {NAV_ITEMS.map(({ href, label, exact }) => (
-                        <Link
-                            key={label}
-                            href={href}
-                            className={
-                                (exact ? pathname === href : pathname.startsWith(href))
-                                    ? "text-inverse-primary border-b-2 border-inverse-primary pb-1"
-                                    : "text-inverse-on-surface opacity-50 hover:opacity-100 hover:text-inverse-on-surface transition-none px-1"
-                            }
-                        >
-                            {label}
-                        </Link>
-                    ))}
-                </nav>}
+{!isPendingTerms && (
+    <nav className="hidden md:flex items-center gap-4 font-headline uppercase tracking-tighter text-sm font-bold h-10">
+        {NAV_ITEMS.map(({ href, label, exact }) => {
+            const isActive = exact ? pathname === href : pathname.startsWith(href)
+            const isInvestStreaming = href === "/ai-insight" && investIsLoading
+            return (
+                <Link
+                    key={label}
+                    href={href}
+                    className={
+                        isActive
+                            ? "text-inverse-primary border-b-2 border-inverse-primary pb-1"
+                            : "text-inverse-on-surface opacity-50 hover:opacity-100 hover:text-inverse-on-surface transition-none px-1"
+                    }
+                >
+                    <span className="flex items-center gap-1">
+                        {label}
+                        {isInvestStreaming && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                        )}
+                    </span>
+                </Link>
+            )
+        })}
+    </nav>
+)}
             </div>
 
             <div className="flex items-center gap-2">

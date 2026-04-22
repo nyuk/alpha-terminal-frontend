@@ -1,7 +1,7 @@
 "use client"
 
 import { useAtom } from "jotai"
-import { useCallback } from "react"
+import { useCallback, useEffect } from "react"
 import { streamInvestmentDecision } from "@/features/invest/infrastructure/api/investApi"
 import {
     investQueryAtom,
@@ -17,6 +17,14 @@ export function useInvestJudgment() {
     const [isLoading, setIsLoading] = useAtom(investIsLoadingAtom)
     const [error, setError] = useAtom(investErrorAtom)
     const [logs, setLogs] = useAtom(investLogsAtom)
+
+    // 브라우저 탭 닫기/새로고침 시 스트림 유실 방지
+    useEffect(() => {
+        if (!isLoading) return
+        const handler = (e: BeforeUnloadEvent) => { e.preventDefault() }
+        window.addEventListener("beforeunload", handler)
+        return () => window.removeEventListener("beforeunload", handler)
+    }, [isLoading])
 
     const submit = useCallback(async () => {
         if (!query.trim()) return

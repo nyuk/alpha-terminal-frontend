@@ -5,12 +5,12 @@ import type { AnalysisLog, StockSummary, PipelineResult } from "../../domain/mod
 
 export async function fetchDashboardSummaries(): Promise<StockSummary[]> {
     const res = await httpClient.get("/pipeline/summaries")
-    return res.json()
+    return (await res.json()) as StockSummary[]
 }
 
 export async function fetchReportSummaries(): Promise<StockSummary[]> {
     const res = await httpClient.get("/pipeline/report-summaries")
-    return res.json()
+    return (await res.json()) as StockSummary[]
 }
 
 export async function runPipeline(symbols?: string[], articleMode?: string): Promise<PipelineResult> {
@@ -18,12 +18,12 @@ export async function runPipeline(symbols?: string[], articleMode?: string): Pro
     if (symbols && symbols.length > 0) body.symbols = symbols
     if (articleMode) body.article_mode = articleMode
     const res = await httpClient.post("/pipeline/run", Object.keys(body).length ? body : undefined)
-    return res.json()
+    return (await res.json()) as PipelineResult
 }
 
 export async function fetchAnalysisLogs(): Promise<AnalysisLog[]> {
     const res = await httpClient.get("/pipeline/logs")
-    return res.json()
+    return (await res.json()) as AnalysisLog[]
 }
 
 export interface PipelineProgressResponse {
@@ -33,7 +33,7 @@ export interface PipelineProgressResponse {
 
 export async function fetchPipelineProgress(): Promise<PipelineProgressResponse> {
     const res = await httpClient.get("/pipeline/progress")
-    return res.json()
+    return (await res.json()) as PipelineProgressResponse
 }
 
 export type RunPipelineStreamResult =

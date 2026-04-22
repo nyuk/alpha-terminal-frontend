@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAtom } from 'jotai'
 import { articleModeAtom, type ArticleMode } from '@/features/dashboard/application/atoms/pipelineAtom'
-import { getBriefingSettingsLocal, saveBriefingSettingsLocal } from '@/features/my/infrastructure/api/myApi'
+import { getBriefingSettingsLocal, saveBriefingSettingsLocal, getArticleModeLocal, saveArticleModeLocal } from '@/features/my/infrastructure/api/myApi'
 import type { BriefingTimeSettings } from '@/features/my/domain/model/mySettings'
 import { BRIEFING_DEFAULTS } from '@/features/my/domain/model/mySettings'
 
@@ -14,6 +14,7 @@ export function useMySettings() {
 
     useEffect(() => {
         setBriefingSettings(getBriefingSettingsLocal())
+        setArticleMode(getArticleModeLocal())
     }, [])
 
     const saveBriefingSettings = (settings: BriefingTimeSettings) => {
@@ -24,6 +25,7 @@ export function useMySettings() {
     }
 
     const updateArticleMode = (mode: ArticleMode) => {
+        saveArticleModeLocal(mode)
         setArticleMode(mode)
     }
 

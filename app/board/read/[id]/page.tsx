@@ -3,15 +3,24 @@
 import { useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
+import dynamic from "next/dynamic"
 import useSWR from "swr"
 import { useBoardRead } from "@/features/board/application/hooks/useBoardRead"
 import { useAtomValue } from "jotai"
 import { authStateAtom } from "@/features/auth/application/atoms/authAtom"
-import StockSummaryCard from "@/app/components/StockSummaryCard"
-import { ShareActionBar } from "@/features/share/ui/components/ShareActionBar"
 import { fetchSharedCard } from "@/features/share/infrastructure/api/shareApi"
 import type { HeatmapItem } from "@/features/stock/domain/model/dailyReturnsHeatmap"
 import { useRecordRecentlyViewed } from "@/features/profile/application/hooks/useRecordRecentlyViewed"
+
+// 조건부로만 렌더되는 무거운 패널들은 코드 스플릿으로 첫 페이로드에서 분리한다.
+const StockSummaryCard = dynamic(() => import("@/app/components/StockSummaryCard"), {
+    loading: () => (
+        <div className="mb-8 h-48 rounded-lg border border-gray-200 animate-pulse bg-gray-100 dark:border-gray-700 dark:bg-gray-800" />
+    ),
+})
+const ShareActionBar = dynamic(
+    () => import("@/features/share/ui/components/ShareActionBar").then((m) => m.ShareActionBar),
+)
 
 function isSentiment(v: string): v is "POSITIVE" | "NEGATIVE" | "NEUTRAL" {
     return v === "POSITIVE" || v === "NEGATIVE" || v === "NEUTRAL"
@@ -21,12 +30,16 @@ function isSourceType(v: string): v is "NEWS" | "DISCLOSURE" | "REPORT" {
     return v === "NEWS" || v === "DISCLOSURE" || v === "REPORT"
 }
 
+type HeatmapResponse = {
+    items?: Record<string, HeatmapItem | undefined>
+}
+
 async function fetchHeatmapForSymbol(symbol: string): Promise<HeatmapItem | null> {
     const sym = symbol.trim().toUpperCase()
     const r = await fetch(`/api/stocks/daily-returns-heatmap?symbols=${encodeURIComponent(sym)}&weeks=8`)
     if (!r.ok) return null
-    const data = await r.json()
-    return data?.items?.[sym] ?? null
+    const data = (await r.json()) as HeatmapResponse
+    return data.items?.[sym] ?? null
 }
 
 export default function BoardReadPage() {
@@ -46,13 +59,19 @@ export default function BoardReadPage() {
 
     const { data: sharedCard, isLoading: cardLoading } = useSWR(
         linkedCardId != null ? ["board-shared-card", linkedCardId] : null,
-        () => fetchSharedCard(linkedCardId!)
+        () => {
+            if (linkedCardId == null) throw new Error("linkedCardId required")
+            return fetchSharedCard(linkedCardId)
+        }
     )
 
     const heatmapSymbol = sharedCard?.symbol?.trim().toUpperCase() ?? null
     const { data: heatmapItem } = useSWR(
         heatmapSymbol ? ["board-heatmap", heatmapSymbol] : null,
-        () => fetchHeatmapForSymbol(heatmapSymbol!)
+        () => {
+            if (!heatmapSymbol) throw new Error("heatmapSymbol required")
+            return fetchHeatmapForSymbol(heatmapSymbol)
+        }
     )
 
     useEffect(() => {
@@ -101,7 +120,8 @@ export default function BoardReadPage() {
     const isBoardCard = hasLinkedCard && sharedCard != null && sharedCard.symbol === "BOARD"
     const showExtraBody =
         isAiCard &&
-        post.content.trim() !== sharedCard!.summary.trim()
+        sharedCard != null &&
+        post.content.trim() !== sharedCard.summary.trim()
     const cardLoadFailed = hasLinkedCard && !cardLoading && sharedCard === undefined
 
     const isCardOwner =

@@ -140,17 +140,18 @@ export function useNewsList() {
         (market: MarketFilter) => {
             setMarketFilter(market)
         },
-        [],
+        [setMarketFilter],
     )
 
+    // BL-FE-77: fetchPage·setState를 deps에 명시 (eslint-disable 제거)
+    // Jotai setter는 참조 안정적이므로 무한 루프 없음
     useEffect(() => {
         if (isLoggedIn) {
             fetchPage(1, marketFilter)
         } else {
             setState((s) => ({ ...s, error: "로그인이 필요합니다.", items: [], isLoading: false }))
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoggedIn, marketFilter])
+    }, [isLoggedIn, marketFilter, fetchPage, setState])
 
     const totalPages = Math.max(1, Math.ceil(state.totalCount / state.pageSize))
     const rangeStart = state.totalCount === 0 ? 0 : (state.page - 1) * state.pageSize + 1
