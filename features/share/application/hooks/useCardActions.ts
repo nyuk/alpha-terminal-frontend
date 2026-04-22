@@ -52,9 +52,10 @@ export function useCardActions(
     const handleLike = useCallback(async () => {
         if (cardId <= 0 || likeLoading) return
         getOrCreateGuestId() // guest_id 쿠키 보장 (익명 사용자 식별)
-        // 낙관적 업데이트
-        setLiked((prev) => !prev)
-        setLikeCount((prev) => (liked ? prev - 1 : prev + 1))
+        // 클릭 시점 상태를 캡처 — 비동기 완료 후에도 정확한 rollback 보장
+        const wasLiked = liked
+        setLiked(!wasLiked)
+        setLikeCount((prev) => (wasLiked ? prev - 1 : prev + 1))
         setLikeLoading(true)
         try {
             const res = await toggleLike(cardId)
@@ -62,8 +63,8 @@ export function useCardActions(
             setLikeCount(res.like_count)
         } catch {
             // 롤백
-            setLiked((prev) => !prev)
-            setLikeCount((prev) => (liked ? prev + 1 : prev - 1))
+            setLiked(wasLiked)
+            setLikeCount((prev) => (wasLiked ? prev + 1 : prev - 1))
         } finally {
             setLikeLoading(false)
         }

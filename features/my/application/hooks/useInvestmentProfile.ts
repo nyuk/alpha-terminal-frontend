@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAtomValue } from 'jotai'
 import { authStateAtom } from '@/features/auth/application/atoms/authAtom'
 import { getInvestmentProfile, saveInvestmentProfile, type InvestmentProfile } from '@/features/my/infrastructure/api/myApi'
@@ -20,11 +20,18 @@ export function useInvestmentProfile() {
     const [profile, setProfile] = useState<InvestmentProfile>(EMPTY)
     const [saving, setSaving] = useState(false)
     const [saveMessage, setSaveMessage] = useState<string | null>(null)
+    const saveMessageTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     useEffect(() => {
         if (!userId) return
         getInvestmentProfile(userId).then(setProfile).catch(() => {})
     }, [userId])
+
+    useEffect(() => {
+        return () => {
+            if (saveMessageTimerRef.current) clearTimeout(saveMessageTimerRef.current)
+        }
+    }, [])
 
     const save = async (next: InvestmentProfile) => {
         if (!userId) return
@@ -33,8 +40,9 @@ export function useInvestmentProfile() {
         try {
             const saved = await saveInvestmentProfile(userId, next)
             setProfile(saved)
+            if (saveMessageTimerRef.current) clearTimeout(saveMessageTimerRef.current)
             setSaveMessage('저장되었습니다.')
-            setTimeout(() => setSaveMessage(null), 2000)
+            saveMessageTimerRef.current = setTimeout(() => setSaveMessage(null), 2000)
         } catch {
             setSaveMessage('저장에 실패했습니다.')
         } finally {

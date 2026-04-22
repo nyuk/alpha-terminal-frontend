@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import type { YoutubeVideo } from "@/features/youtube/domain/model/youtubeVideo"
 import { fetchYoutubeList } from "@/features/youtube/infrastructure/api/youtubeApi"
 
@@ -26,8 +26,6 @@ export function useYoutubeVideos(_pageSize: number = 9): UseYoutubeVideosReturn 
     const [currentPage, setCurrentPage] = useState(1)
     const [nextToken, setNextToken] = useState<string | null>(null)
     const [prevToken, setPrevToken] = useState<string | null>(null)
-    const [initialized, setInitialized] = useState(false)
-
     const load = useCallback(async (pageToken?: string, direction: "next" | "prev" | "init" = "init") => {
         setStatus("LOADING")
         setError(null)
@@ -47,10 +45,9 @@ export function useYoutubeVideos(_pageSize: number = 9): UseYoutubeVideosReturn 
         }
     }, [])
 
-    if (!initialized) {
-        setInitialized(true)
+    useEffect(() => {
         load()
-    }
+    }, [load])
 
     const goNext = useCallback(() => {
         if (nextToken) load(nextToken, "next")

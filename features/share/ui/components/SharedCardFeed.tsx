@@ -42,6 +42,8 @@ function SharedCardItem({ card, onReload }: { card: SharedCard; onReload: () => 
         try {
             await deleteSharedCard(card.id)
             onReload()
+        } catch {
+            // 삭제 실패 시 사용자에게 피드백 없이 버튼 상태만 복구
         } finally {
             setDeleting(false)
         }

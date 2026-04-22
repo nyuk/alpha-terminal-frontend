@@ -27,7 +27,8 @@ export function CommentModal({ comments, loading, onOpen, onClose, onSubmit, ope
             onOpen()
             const loggedIn = getNicknameCookie()
             setNickname(loggedIn ?? getOrCreateGuestName())
-            setTimeout(() => textareaRef.current?.focus(), 100)
+            const timer = setTimeout(() => textareaRef.current?.focus(), 100)
+            return () => clearTimeout(timer)
         }
     }, [open, onOpen])
 
