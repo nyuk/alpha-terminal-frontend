@@ -2,7 +2,6 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { useAuth } from "@/features/auth/application/hooks/useAuth"
 
 const NAV_GROUPS = [
     {
@@ -36,9 +35,6 @@ const SETTINGS_ITEMS = [
 
 export default function SideBar() {
     const pathname = usePathname()
-    const { state } = useAuth()
-
-    if (state.status === "PENDING_TERMS") return null
 
     const isActive = (href: string, exact?: boolean) =>
         exact ? pathname === href : pathname === href || pathname.startsWith(href + "/")

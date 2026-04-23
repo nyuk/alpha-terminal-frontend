@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAtomValue } from "jotai"
@@ -11,6 +12,15 @@ export default function BoardEditPage() {
     const router = useRouter()
     const boardId = Number(params.id)
     const authState = useAtomValue(authStateAtom)
+
+    useEffect(() => {
+        if (authState.status === "UNAUTHENTICATED") {
+            router.replace("/login")
+        }
+        if (authState.status === "PENDING_TERMS") {
+            router.replace("/terms")
+        }
+    }, [authState.status, router])
 
     const {
         title,

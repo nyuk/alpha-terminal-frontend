@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 import { useAtomValue, useSetAtom } from "jotai"
 import { authStateAtom } from "@/features/auth/application/atoms/authAtom"
 import { investIsLoadingAtom } from "@/features/invest/application/atoms/investJudgmentAtom"
@@ -59,7 +60,17 @@ function AgentLogPanel({ logs }: { logs: string[] }) {
 export function InvestPage() {
     const authState = useAtomValue(authStateAtom)
     const setIsLoading = useSetAtom(investIsLoadingAtom)
+    const router = useRouter()
     const { query, setQuery, result, isLoading, error, logs, submit, reset } = useInvestJudgment()
+
+    useEffect(() => {
+        if (authState.status === "UNAUTHENTICATED") {
+            router.replace("/login")
+        }
+        if (authState.status === "PENDING_TERMS") {
+            router.replace("/terms")
+        }
+    }, [authState.status, router])
 
     // SSE 스트림 진행 중 페이지 이탈 시 isLoading 정리
     useEffect(() => {

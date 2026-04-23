@@ -42,6 +42,7 @@ export async function saveInvestmentProfile(userId: number, profile: InvestmentP
     return res.json()
 }
 
+
 const ARTICLE_MODE_KEY = 'alpha_article_mode'
 const ARTICLE_MODE_DEFAULT: ArticleMode = 'latest_3'
 

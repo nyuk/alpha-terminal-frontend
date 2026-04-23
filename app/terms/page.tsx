@@ -1,12 +1,10 @@
 "use client"
 
-import { Suspense, useState, useEffect } from "react"
+import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAtom } from "jotai"
-import { useAtomValue } from "jotai"
 import { useTerms } from "@/features/terms/application/hooks/useTerms"
 import { termsConsentAtom } from "@/features/terms/application/atoms/termsConsentAtom"
-import { authStateAtom } from "@/features/auth/application/atoms/authAtom"
 
 export default function TermsPage() {
     return (
@@ -20,13 +18,6 @@ function TermsContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const { terms } = useTerms()
-    const authState = useAtomValue(authStateAtom)
-
-    useEffect(() => {
-        if (authState.status === "AUTHENTICATED") {
-            router.replace("/")
-        }
-    }, [authState.status, router])
     const [, setTermsConsent] = useAtom(termsConsentAtom)
     const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>({})
     const [expandedTermId, setExpandedTermId] = useState<string | null>(null)

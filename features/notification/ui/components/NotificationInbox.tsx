@@ -73,11 +73,13 @@ export default function NotificationInbox({
                 )}
 
                 {!isLoading &&
-                    sorted.map((n) => (
+                    sorted.map((n) => {
+                        const effectiveLink = n.link ?? (n.title.startsWith("[오늘의 관심종목 브리핑]") ? "/" : undefined)
+                        return (
                         <li key={n.id}>
                             <button
                                 type="button"
-                                onClick={() => onMarkAsRead(n.id, n.link)}
+                                onClick={() => onMarkAsRead(n.id, effectiveLink)}
                                 className={`w-full text-left px-4 py-3 border-b border-gray-800 hover:bg-gray-800 transition-colors ${
                                     n.isRead ? "opacity-50" : ""
                                 }`}
@@ -104,7 +106,8 @@ export default function NotificationInbox({
                                 </div>
                             </button>
                         </li>
-                    ))}
+                    )})}
+
             </ul>
         </div>
     )

@@ -43,27 +43,10 @@ async function handler(
     );
   }
 
-  // 리다이렉트 응답은 내부 도메인인 경우에만 브라우저에 전달
+  // 리다이렉트 응답은 브라우저에 직접 전달
   if (backendResponse.status >= 300 && backendResponse.status < 400) {
     const location = backendResponse.headers.get("location");
     if (location) {
-      try {
-        const backendOrigin = new URL(BACKEND_URL).origin;
-        const locationOrigin = new URL(location).origin;
-        if (locationOrigin !== backendOrigin) {
-          console.warn("[proxy] 외부 도메인 리다이렉트 차단:", location);
-          return new NextResponse(
-            JSON.stringify({ error: "외부 도메인으로의 리다이렉트는 허용되지 않습니다." }),
-            { status: 403, headers: { "content-type": "application/json" } }
-          );
-        }
-      } catch {
-        console.warn("[proxy] location URL 파싱 실패, 리다이렉트 차단:", location);
-        return new NextResponse(
-          JSON.stringify({ error: "유효하지 않은 리다이렉트 URL입니다." }),
-          { status: 403, headers: { "content-type": "application/json" } }
-        );
-      }
       const redirectHeaders = new Headers();
       const setCookies = backendResponse.headers.getSetCookie();
       for (const c of setCookies) {

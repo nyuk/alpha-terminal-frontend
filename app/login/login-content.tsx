@@ -4,7 +4,6 @@ import { useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useAuth } from "@/features/auth/application/hooks/useAuth"
 import { KakaoLoginButton } from "@/features/auth/ui/components/LoginButton"
-import { fetchWatchlist } from "@/features/watchlist/infrastructure/api/watchlistApi"
 
 const oauthButtons = [
     <KakaoLoginButton key="kakao" />,
@@ -19,18 +18,9 @@ export function LoginContent() {
     const expiredSignupSession = reason === "signup-session-expired"
 
     useEffect(() => {
-        if (state.status !== "AUTHENTICATED") return
-
-        fetchWatchlist()
-            .then((items) => {
-                if (items.length === 0) {
-                    document.cookie = "watchlist-guide=true; path=/; max-age=86400"
-                }
-            })
-            .catch(() => {})
-            .finally(() => {
-                router.push("/")
-            })
+        if (state.status === "AUTHENTICATED") {
+            router.push("/")
+        }
     }, [state.status, router])
 
     if (state.status === "LOADING") {

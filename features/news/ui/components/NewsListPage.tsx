@@ -208,7 +208,7 @@ export function NewsListPage() {
                     <ul className="flex flex-col gap-2">
                         {filteredItems.map((article, i) => (
                             <NewsItem
-                                key={article.link ?? i}
+                                key={`${article.link ?? ""}-${i}`}
                                 article={article}
                                 onSave={save}
                             />

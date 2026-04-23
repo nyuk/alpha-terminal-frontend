@@ -1,7 +1,6 @@
 "use client"
 
-import { Suspense } from "react"
-import { useCallback, useEffect, useMemo, useRef, useState } from "react"
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useDashboard } from "@/features/dashboard/application/hooks/useDashboard"
 import { excludeCurrentSummaryFromLogs } from "@/features/dashboard/domain/excludeCurrentSummaryFromLogs"
@@ -14,14 +13,27 @@ import { DashboardPipelineResult } from "./components/DashboardPipelineResult"
 import { DashboardSummarySection } from "./components/DashboardSummarySection"
 import { DashboardWatchlistSection } from "./components/DashboardWatchlistSection"
 
-function DashboardPage() {
+function AutorunHandler({ onAutorun }: { onAutorun: () => void }) {
+    const router = useRouter()
+    const searchParams = useSearchParams()
+    const fired = useRef(false)
+
+    useEffect(() => {
+        if (searchParams.get("autorun") !== "true" || fired.current) return
+        fired.current = true
+        router.replace("/dashboard")
+        onAutorun()
+    }, [searchParams, router, onAutorun])
+
+    return null
+}
+
+export default function DashboardPage() {
     const { state: authState } = useAuth()
     const isLoggedIn = authState.status === "AUTHENTICATED"
     const recordRecentlyViewed = useRecordRecentlyViewed()
-    const router = useRouter()
-    const searchParams = useSearchParams()
-    const autorun = searchParams.get("autorun") === "true"
-    const autorunFired = useRef(false)
+    const [pendingAutorun, setPendingAutorun] = useState(false)
+    const handleAutorun = useCallback(() => setPendingAutorun(true), [])
 
     const handleCardClick = useCallback(
         (symbol: string, name: string) => {
@@ -84,11 +96,10 @@ function DashboardPage() {
     }
 
     useEffect(() => {
-        if (!autorun || autorunFired.current || !hasInitializedSelection || selectedSymbols.length === 0 || running) return
-        autorunFired.current = true
-        router.replace("/dashboard")
+        if (!pendingAutorun || !hasInitializedSelection || selectedSymbols.length === 0 || running) return
+        setPendingAutorun(false)
         executePipeline(selectedSymbols)
-    }, [autorun, hasInitializedSelection, selectedSymbols, running, router, executePipeline])
+    }, [pendingAutorun, hasInitializedSelection, selectedSymbols, running, executePipeline])
 
     const allSkipped = pipelineResult ? pipelineResult.processed.every((p) => p.skipped) : false
     const canRun = selectedSymbols.length > 0
@@ -113,6 +124,9 @@ function DashboardPage() {
 
     return (
         <>
+        <Suspense fallback={null}>
+            <AutorunHandler onAutorun={handleAutorun} />
+        </Suspense>
         {/* Sticky 페이지 헤더 */}
         <div className="sticky top-0 z-40 bg-surface border-b border-outline">
             <div className="max-w-5xl mx-auto px-6 md:px-8 flex items-stretch justify-between">
@@ -195,13 +209,5 @@ function DashboardPage() {
             />
         </main>
         </>
-    )
-}
-
-export default function Page() {
-    return (
-        <Suspense>
-            <DashboardPage />
-        </Suspense>
     )
 }

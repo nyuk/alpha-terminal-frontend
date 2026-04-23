@@ -12,8 +12,6 @@ export const useSignup = () => {
         setError(null)
         try {
             await signUpUser({ nickname, email })
-            document.cookie = "pending_nickname=; Max-Age=0; path=/"
-            document.cookie = "pending_email=; Max-Age=0; path=/"
             window.location.href = "/"
         } catch (err) {
             const status = err instanceof ApiError ? err.status : undefined

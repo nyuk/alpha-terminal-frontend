@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useAtomValue } from "jotai"
@@ -10,6 +11,16 @@ export default function BoardCreatePage() {
     const router = useRouter()
     const authState = useAtomValue(authStateAtom)
     const { form, setField, isSubmitting, error, submit } = useBoardCreate()
+
+    // 비인증 사용자 → 로그인 페이지로 리다이렉트
+    useEffect(() => {
+        if (authState.status === "UNAUTHENTICATED") {
+            router.replace("/login")
+        }
+        if (authState.status === "PENDING_TERMS") {
+            router.replace("/terms")
+        }
+    }, [authState.status, router])
 
     if (authState.status !== "AUTHENTICATED") {
         return null

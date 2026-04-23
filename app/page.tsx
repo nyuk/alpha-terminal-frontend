@@ -1,10 +1,7 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
 import Link from "next/link"
 import { useHome } from "@/features/home/application/hooks/useHome"
-import { getCookie } from "@/infrastructure/utils/cookie"
-import WatchlistGuideToast from "@/features/watchlist/ui/components/WatchlistGuideToast"
 import { HomeSentimentGauge } from "@/app/components/HomeSentimentGauge"
 import { HomeAlphaTopPicks } from "@/app/components/HomeAlphaTopPicks"
 import { HomeTodayBriefing } from "@/app/components/HomeTodayBriefing"
@@ -42,18 +39,6 @@ function FeatureHighlights() {
 
 export default function HomePage() {
     const state = useHome()
-    const [showWatchlistGuide, setShowWatchlistGuide] = useState(false)
-
-    useEffect(() => {
-        if (getCookie("watchlist-guide")) {
-            setShowWatchlistGuide(true)
-        }
-    }, [])
-
-    const dismissWatchlistGuide = useCallback(() => {
-        document.cookie = "watchlist-guide=; path=/; max-age=0"
-        setShowWatchlistGuide(false)
-    }, [])
 
     const isPublic = state.status === "PUBLIC_READY"
     const isReady = state.status === "READY"
@@ -61,7 +46,6 @@ export default function HomePage() {
 
     return (
         <>
-            {showWatchlistGuide && <WatchlistGuideToast onDismiss={dismissWatchlistGuide} />}
             {/* Sticky 페이지 헤더 - 탭바와 동일 높이 */}
             <div className="sticky top-0 z-40 bg-surface border-b border-outline">
                 <div className="max-w-5xl mx-auto px-6 md:px-8 flex items-stretch justify-between">
@@ -70,14 +54,7 @@ export default function HomePage() {
                         <span className="text-[9px] text-on-surface-variant/60 normal-case mt-0.5">AI 기반 주식 분석 워크스테이션</span>
                     </div>
                     {isReady && (
-                        <div className="flex items-center gap-2 pr-2">
-                            <Link
-                                href="/dashboard?autorun=true"
-                                className="flex items-center gap-1 bg-primary px-3 py-1.5 font-mono text-[10px] text-white uppercase hover:opacity-90"
-                            >
-                                <span className="material-symbols-outlined text-[12px]">play_arrow</span>
-                                RUN_ANALYSIS
-                            </Link>
+                        <div className="flex items-center pr-2">
                             <Link
                                 href="/my#watchlist"
                                 className="flex items-center gap-1 border border-outline px-3 py-1.5 font-mono text-[10px] text-on-surface-variant hover:text-primary hover:border-primary uppercase"
