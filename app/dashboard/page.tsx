@@ -8,6 +8,7 @@ import { useDailyReturnsHeatmap } from "@/features/stock/application/hooks/useDa
 import { useWatchlist } from "@/features/watchlist/application/hooks/useWatchlist"
 import { useAuth } from "@/features/auth/application/hooks/useAuth"
 import { useRecordRecentlyViewed } from "@/features/profile/application/hooks/useRecordRecentlyViewed"
+import { useTrackEvent } from "@/features/analytics/application/hooks/useTrackEvent"
 import { DashboardAnalysisLogsSection } from "./components/DashboardAnalysisLogsSection"
 import { DashboardPipelineResult } from "./components/DashboardPipelineResult"
 import { DashboardSummarySection } from "./components/DashboardSummarySection"
@@ -29,6 +30,7 @@ function AutorunHandler({ onAutorun }: { onAutorun: () => void }) {
 }
 
 export default function DashboardPage() {
+    useTrackEvent("visit")
     const { state: authState } = useAuth()
     const isLoggedIn = authState.status === "AUTHENTICATED"
     const router = useRouter()
