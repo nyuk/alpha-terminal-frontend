@@ -1,68 +1,62 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useCallback, useEffect } from "react"
+import { useAtom } from "jotai"
 import { ApiError } from "@/infrastructure/http/apiError"
 import { fetchWatchlist, addWatchlistItem, deleteWatchlistItem } from "../../infrastructure/api/watchlistApi"
-import type { WatchlistItem } from "../../domain/model/watchlistItem"
+import { watchlistAtom } from "../atoms/watchlistAtom"
 
 export const useWatchlist = () => {
-    const [items, setItems] = useState<WatchlistItem[]>([])
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [state, setState] = useAtom(watchlistAtom)
 
     const load = useCallback(async () => {
-        setIsLoading(true)
-        setError(null)
+        setState(s => ({ ...s, isLoading: true, error: null }))
         try {
             const data = await fetchWatchlist()
-            setItems(data)
+            setState({ items: data, isLoading: false, error: null, initialized: true })
         } catch (err) {
-            if (err instanceof ApiError) {
-                if (err.status === 401) setError("로그인이 필요합니다.")
-                else setError(err.message || "목록을 불러오지 못했습니다.")
-            } else {
-                setError("목록을 불러오지 못했습니다.")
-            }
-        } finally {
-            setIsLoading(false)
+            const msg = err instanceof ApiError
+                ? (err.status === 401 ? "로그인이 필요합니다." : err.message || "목록을 불러오지 못했습니다.")
+                : "목록을 불러오지 못했습니다."
+            setState(s => ({ ...s, isLoading: false, error: msg, initialized: true }))
         }
-    }, [])
-
-    const add = useCallback(async (symbol: string, name: string, market?: string) => {
-        setError(null)
-        try {
-            const item = await addWatchlistItem(symbol, name, market)
-            setItems((prev) => [...prev, item])
-            return true
-        } catch (err) {
-            if (err instanceof ApiError) {
-                if (err.status === 409) setError("이미 등록된 종목입니다.")
-                else if (err.status === 401) setError("로그인이 만료되었습니다.")
-                else setError(err.message || "등록에 실패했습니다.")
-            } else {
-                setError("등록에 실패했습니다.")
-            }
-            return false
-        }
-    }, [])
-
-    const remove = useCallback(async (id: number) => {
-        setError(null)
-        try {
-            await deleteWatchlistItem(id)
-            setItems((prev) => prev.filter((item) => item.id !== id))
-        } catch (err) {
-            if (err instanceof ApiError) {
-                setError(err.message || "삭제에 실패했습니다.")
-            } else {
-                setError("삭제에 실패했습니다.")
-            }
-        }
-    }, [])
+    }, [setState])
 
     useEffect(() => {
-        load()
-    }, [load])
+        if (!state.initialized && !state.isLoading) {
+            load()
+        }
+    }, [state.initialized, state.isLoading, load])
 
-    return { items, isLoading, error, add, remove }
+    const add = useCallback(async (symbol: string, name: string, market?: string) => {
+        setState(s => ({ ...s, error: null }))
+        try {
+            const item = await addWatchlistItem(symbol, name, market)
+            setState(s => ({ ...s, items: [...s.items, item] }))
+            return true
+        } catch (err) {
+            const msg = err instanceof ApiError
+                ? (err.status === 409 ? "이미 등록된 종목입니다."
+                    : err.status === 401 ? "로그인이 만료되었습니다."
+                    : err.message || "등록에 실패했습니다.")
+                : "등록에 실패했습니다."
+            setState(s => ({ ...s, error: msg }))
+            return false
+        }
+    }, [setState])
+
+    const remove = useCallback(async (id: number) => {
+        setState(s => ({ ...s, error: null }))
+        try {
+            await deleteWatchlistItem(id)
+            setState(s => ({ ...s, items: s.items.filter(item => item.id !== id) }))
+        } catch (err) {
+            const msg = err instanceof ApiError
+                ? err.message || "삭제에 실패했습니다."
+                : "삭제에 실패했습니다."
+            setState(s => ({ ...s, error: msg }))
+        }
+    }, [setState])
+
+    return { items: state.items, isLoading: state.isLoading, error: state.error, add, remove }
 }

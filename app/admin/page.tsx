@@ -56,7 +56,7 @@ function OverviewTab() {
                     <StatCard label="오늘 신규" value={stats.new_users_today.toLocaleString()} />
                     <StatCard label="이번주 신규" value={stats.new_users_this_week.toLocaleString()} />
                     <StatCard label="평균 체류시간" value={dwellMin} />
-                    <StatCard label="CTR" value={stats.ctr != null ? `${(stats.ctr * 100).toFixed(1)}%` : "N/A"} />
+                    <StatCard label="Activation Rate" value={stats.ctr != null ? `${(stats.ctr * 100).toFixed(1)}%` : "N/A"} />
                 </div>
             </section>
             <section>
