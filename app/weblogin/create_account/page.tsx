@@ -9,7 +9,15 @@ function KakaoRedirect() {
   useEffect(() => {
     const continueUrl = searchParams.get("continue");
     if (continueUrl) {
-      window.location.href = continueUrl;
+      // Open Redirect 방지: 같은 오리진의 상대 경로만 허용
+      try {
+        const parsed = new URL(continueUrl, window.location.origin);
+        if (parsed.origin === window.location.origin) {
+          window.location.href = parsed.pathname + parsed.search + parsed.hash;
+        }
+      } catch {
+        // 유효하지 않은 URL — 무시
+      }
     }
   }, [searchParams]);
 

@@ -9,7 +9,6 @@ async function handler(
   const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:33333";
   const { path } = await context.params;
   const url = `${BACKEND_URL}/${path.join("/")}${request.nextUrl.search}`;
-  console.log("[proxy] BACKEND_URL:", BACKEND_URL, "url:", url);
 
   const requestHeaders = new Headers();
   const cookie = request.headers.get("cookie");
@@ -35,18 +34,30 @@ async function handler(
       redirect: "manual",
     });
   } catch (err) {
-    const cause = err instanceof Error ? err.cause : err;
-    console.error("[proxy] fetch failed", { url, method: request.method, err, cause });
+    console.error("[proxy] fetch failed", { method: request.method, err });
     return new NextResponse(
-      JSON.stringify({ error: "fetch failed", url, message: String(err), cause: String(cause) }),
+      JSON.stringify({ error: "요청 처리 중 오류가 발생했습니다." }),
       { status: 502, headers: { "content-type": "application/json" } }
     );
   }
 
-  // 리다이렉트 응답은 브라우저에 직접 전달
+  // 리다이렉트 응답은 브라우저에 직접 전달 (외부 도메인 리다이렉트 차단)
   if (backendResponse.status >= 300 && backendResponse.status < 400) {
     const location = backendResponse.headers.get("location");
     if (location) {
+      // SSRF/Open Redirect 방지: 백엔드 도메인 또는 상대 경로만 허용
+      const isAllowed = (() => {
+        try {
+          const parsed = new URL(location, BACKEND_URL);
+          const backendOrigin = new URL(BACKEND_URL).origin;
+          return parsed.origin === backendOrigin || parsed.origin === request.nextUrl.origin;
+        } catch {
+          return location.startsWith("/");
+        }
+      })();
+      if (!isAllowed) {
+        return new NextResponse(null, { status: 403 });
+      }
       const redirectHeaders = new Headers();
       const setCookies = backendResponse.headers.getSetCookie();
       for (const c of setCookies) {
