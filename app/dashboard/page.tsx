@@ -31,9 +31,16 @@ function AutorunHandler({ onAutorun }: { onAutorun: () => void }) {
 export default function DashboardPage() {
     const { state: authState } = useAuth()
     const isLoggedIn = authState.status === "AUTHENTICATED"
+    const router = useRouter()
     const recordRecentlyViewed = useRecordRecentlyViewed()
     const [pendingAutorun, setPendingAutorun] = useState(false)
     const handleAutorun = useCallback(() => setPendingAutorun(true), [])
+
+    useEffect(() => {
+        if (authState.status === "PENDING_TERMS") {
+            router.replace("/terms")
+        }
+    }, [authState.status, router])
 
     const handleCardClick = useCallback(
         (symbol: string, name: string) => {

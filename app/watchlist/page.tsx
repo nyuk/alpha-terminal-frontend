@@ -1,7 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAtomValue } from 'jotai'
+import { authStateAtom } from '@/features/auth/application/atoms/authAtom'
 import { ClientPaginationBar } from '@/app/components/ClientPaginationBar'
 import { DailyReturnsHeatmapLegend } from '@/app/components/DailyReturnsHeatmapLegend'
 import { WatchlistHeatmapCollapsible } from '@/app/components/WatchlistHeatmapCollapsible'
@@ -30,11 +33,19 @@ function MarketBadge({ market }: { market?: string | null }) {
 }
 
 export default function WatchlistPage() {
+    const authState = useAtomValue(authStateAtom)
+    const router = useRouter()
     const { items, isLoading, error, add, remove } = useWatchlist()
     const { results, isLoading: isSearching, error: searchError, query, search, clear } = useStockSearch()
     const { isWatchlistPublic, isLoading: isSettingsLoading, isSaving, toggle: togglePublic } = useAccountSettings()
     const [registering, setRegistering] = useState<string | null>(null)
     const [deleteTarget, setDeleteTarget] = useState<{ id: number; symbol: string; name: string } | null>(null)
+
+    useEffect(() => {
+        if (authState.status === 'PENDING_TERMS') {
+            router.replace('/terms')
+        }
+    }, [authState.status, router])
 
     const watchlistSymbols = useMemo(() => items.map((i) => i.symbol), [items])
     const { bySymbol: heatmapBySymbol, data: heatmapData } = useDailyReturnsHeatmap(watchlistSymbols, 6)

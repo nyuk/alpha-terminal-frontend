@@ -1,6 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAtomValue } from 'jotai'
+import { authStateAtom } from '@/features/auth/application/atoms/authAtom'
 import { NewsListPage } from '@/features/news/ui/components/NewsListPage'
 import { YoutubeVideoFeed } from '@/features/youtube/ui/components/YoutubeVideoFeed'
 
@@ -12,7 +15,15 @@ const TABS: { id: Tab; label: string; desc: string }[] = [
 ]
 
 export default function MarketFeedPage() {
+    const authState = useAtomValue(authStateAtom)
+    const router = useRouter()
     const [activeTab, setActiveTab] = useState<Tab>('news')
+
+    useEffect(() => {
+        if (authState.status === 'PENDING_TERMS') {
+            router.replace('/terms')
+        }
+    }, [authState.status, router])
 
     const switchTab = (tab: Tab) => {
         setActiveTab(tab)
