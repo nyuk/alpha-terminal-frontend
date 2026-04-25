@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { isSafeUrl } from '@/infrastructure/utils/urlValidator'
 import type { HeatmapItem } from '@/features/stock/domain/model/dailyReturnsHeatmap'
 import { ShareActionBar } from '@/features/share/ui/components/ShareActionBar'
 import type { ShareCardPayload } from '@/features/share/domain/model/sharedCard'
@@ -190,8 +191,8 @@ export default function StockSummaryCard({
   )
 
   return (
-    <div className={`border border-outline bg-surface-container-low flex flex-col${url ? ' hover:border-primary' : ''}`}>
-      {url ? (
+    <div className={`border border-outline bg-surface-container-low flex flex-col${isSafeUrl(url) ? ' hover:border-primary' : ''}`}>
+      {isSafeUrl(url) ? (
         <a href={url} target="_blank" rel="noopener noreferrer" onClick={onCardClick} className="flex-1">
           {cardContent}
         </a>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { fetchStockDetail } from "@/features/stock/infrastructure/api/stockApi"
+import { isSafeUrl } from "@/infrastructure/utils/urlValidator"
 import { useWatchlist } from "@/features/watchlist/application/hooks/useWatchlist"
 import { useAuth } from "@/features/auth/application/hooks/useAuth"
 import { StockDailyReturnsHeatmap } from "@/app/components/StockDailyReturnsHeatmap"
@@ -185,7 +186,7 @@ export default function StockDetailPage() {
                                         <span className="text-outline">신뢰도 {(log.confidence * 100).toFixed(0)}%</span>
                                         <span className="text-outline">감성 {log.sentiment_score.toFixed(2)}</span>
                                     </div>
-                                    {log.url && (
+                                    {isSafeUrl(log.url) && (
                                         <a
                                             href={log.url}
                                             target="_blank"

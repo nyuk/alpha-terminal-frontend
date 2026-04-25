@@ -1,4 +1,5 @@
 import type { NewsArticleItem } from "@/features/news/domain/model/newsArticle"
+import { getSafeUrl } from "@/infrastructure/utils/urlValidator"
 
 interface Props {
     articles: NewsArticleItem[]
@@ -30,7 +31,7 @@ export function NewsArticleList({ articles, isLoading, error }: Props) {
             {articles.map((article, i) => (
                 <li key={article.link ?? i} className="border-b pb-3">
                     <a
-                        href={article.link ?? "#"}
+                        href={getSafeUrl(article.link)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm font-medium text-blue-600 hover:underline"

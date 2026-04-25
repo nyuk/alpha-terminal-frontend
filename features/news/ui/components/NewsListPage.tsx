@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { getSafeUrl } from "@/infrastructure/utils/urlValidator"
 import { memo, useMemo, useState } from "react"
 import { ClientPaginationBar } from "@/app/components/ClientPaginationBar"
 import { useNewsList, type MarketFilter, type SaveResult } from "@/features/news/application/hooks/useNewsList"
@@ -49,7 +50,7 @@ const NewsItem = memo(function NewsItem({
         <li className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between border border-outline px-4 py-3">
             <div className="flex flex-col gap-1 min-w-0 flex-1">
                 <a
-                    href={article.link ?? "#"}
+                    href={getSafeUrl(article.link)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="font-mono text-sm font-medium text-on-surface hover:text-primary line-clamp-2"
