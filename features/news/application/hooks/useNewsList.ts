@@ -70,7 +70,12 @@ export function useNewsList() {
             const calls: Promise<NewsSearchResponse>[] = []
             if (market !== "US" && kr) calls.push(searchNews(kr, "KR", page, PAGE_SIZE))
             if (market !== "KR" && us) calls.push(searchNews(us, "US", page, PAGE_SIZE))
-            if (calls.length === 0) calls.push(searchNews("stock", null, page, PAGE_SIZE))
+            if (calls.length === 0) {
+                // 관심종목에 해당 market 종목이 없을 때 fallback — 사용자가 선택한 market 유지
+                const fallbackMarket = market === "ALL" ? null : market
+                const fallbackKeyword = market === "KR" ? "주식" : "stock"
+                calls.push(searchNews(fallbackKeyword, fallbackMarket, page, PAGE_SIZE))
+            }
 
             const seenLinks = new Set<string>()
             let remaining = calls.length
