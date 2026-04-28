@@ -7,7 +7,7 @@ interface Props {
 }
 
 // SSR에서는 상대 경로 불가 → 백엔드 직접 호출
-const SSR_API_BASE = process.env.BACKEND_URL ?? "http://localhost:33333"
+const SSR_API_BASE = process.env.INTERNAL_API_URL ?? "http://localhost:33333"
 const SHARE_BASE = process.env.NEXT_PUBLIC_SHARE_BASE_URL ?? "http://localhost:3000"
 
 async function fetchCard(cardId: string) {
