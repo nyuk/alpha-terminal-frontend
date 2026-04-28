@@ -2,9 +2,12 @@
 
 import { useCallback, useEffect } from "react"
 import { useAtom } from "jotai"
+import { mutate as globalMutate } from "swr"
 import { ApiError } from "@/infrastructure/http/apiError"
 import { fetchWatchlist, addWatchlistItem, deleteWatchlistItem } from "../../infrastructure/api/watchlistApi"
 import { watchlistAtom } from "../atoms/watchlistAtom"
+
+const DASHBOARD_SWR_KEY = "/dashboard/data"
 
 export const useWatchlist = () => {
     const [state, setState] = useAtom(watchlistAtom)
@@ -50,6 +53,7 @@ export const useWatchlist = () => {
         try {
             await deleteWatchlistItem(id)
             setState(s => ({ ...s, items: s.items.filter(item => item.id !== id) }))
+            await globalMutate(DASHBOARD_SWR_KEY)
         } catch (err) {
             const msg = err instanceof ApiError
                 ? err.message || "삭제에 실패했습니다."
