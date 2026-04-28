@@ -57,13 +57,6 @@ export function SNSShareModal({ open, onClose, cardId, symbol, name, summary }: 
         })
     }
 
-    const handleKakaoStory = () => {
-        window.open(
-            `https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}`,
-            "_blank",
-        )
-    }
-
     const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`
     const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`
     const naverBlogUrl = `https://blog.naver.com/openapi/share?url=${encodeURIComponent(shareUrl)}&title=${encodeURIComponent(shareTitle)}`
@@ -81,7 +74,6 @@ export function SNSShareModal({ open, onClose, cardId, symbol, name, summary }: 
     const options = [
         { label: copied ? "복사됨 ✓" : "링크 복사", icon: "🔗", action: handleCopy },
         { label: "카카오톡", icon: "💬", action: handleKakaoTalk },
-        { label: "카카오스토리", icon: "📒", action: handleKakaoStory },
         { label: "Twitter / X", icon: "🐦", action: () => window.open(twitterUrl, "_blank") },
         { label: "Facebook", icon: "📘", action: () => window.open(facebookUrl, "_blank") },
         { label: "네이버 블로그", icon: "📗", action: () => window.open(naverBlogUrl, "_blank") },
